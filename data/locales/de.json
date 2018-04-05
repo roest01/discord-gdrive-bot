@@ -1,4 +1,6 @@
 {
   "AboutBot":"Informationen über den Bot",
-  "DateFormattingCode":"de-DE"
+  "DateFormattingCode":"de-DE",
+  "FollowingCommands":"Folgende Befehle sind verfügbar:",
+  "InfoGuildMemberEPList":"Anzeige der Liste aller Mitglieder mit ihren Punkten"
 }

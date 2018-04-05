@@ -1,4 +1,6 @@
 {
   "AboutBot":"Details about the bot",
-  "DateFormattingCode":"en-US"
+  "DateFormattingCode":"en-US",
+  "FollowingCommands":"Following commands are available:",
+  "InfoGuildMemberEPList":"Display all guild members with their score"
 }

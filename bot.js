@@ -9,14 +9,18 @@ const i18n = require('./general/langSupport');
 const fm = require('./general/contentFormatter');
 const strH = require('./general/stringHelper');
 
-//View
-
+// VIEW
+const helpMsg = require('./View/helpMessage');
 const sheet = require('./view/sheetMessage');
 
 //logger
 var log =require('loglevel');
 log.setLevel('info');
-  
+
+
+// prefix for commands
+const PREFIX = c.prefix();
+
 const bot = new Discord.Client({
     disableEveryone: true
 });
@@ -47,13 +51,51 @@ bot.on("message", async message => {
     if (message.channel.type === "dm"){ 
         return;
     }
+
+    //ignore commands without prefix
+    if (!message.content.startsWith(PREFIX)) return;
     
     //only channel message
     
+    //prevent any actions, if bot cannot write
+    if (message.member != null) {
+        if (!message.channel.permissionsFor(bot.user).has('SEND_MESSAGES')) {
+            return;
+        }
+    }
+
+    let messageArray = message.content.split(" ");
+    let command = messageArray[0];
+
+    // user has role
+    var hasRole = false;
+
+    for (var reqRole of c.restriction()) {
+        if (message.member.roles.find("name", reqRole)) {
+            hasRole = true;
+            break;
+        }
+    }
+    
+    //HELP
+    if (strH.hasCmd(command,`${PREFIX}help`)) {
+        let embed = helpMsg.getChannelHelp(PREFIX,message.author.username, hasRole);
+        message.channel.send(embed);
+        return;
+    }
+
+    
+    // about
+    if (strH.hasCmds(command,[`${PREFIX}about`])) {
+
+        var d = new Discord.RichEmbed().setAuthor(message.author.username);
+        const version = c.version();
+        message.channel.send(d.addField(`${i18n.get('AboutBot')} [${version}]`, `Creator: ${c.author()}`));
+        return;
+    }
     
     //send weekly ep list
-    if (message.content == `.ep`) {
-
+    if (strH.hasCmd(command,`${PREFIX}ep`)) {
         const callback = function(embed) {
             message.channel.send(embed);
         };
