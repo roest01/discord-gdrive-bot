@@ -1,0 +1,17 @@
+{
+  "name": "gbot",
+  "version": "0.0.1",
+  "description": "Google Drive Bot",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "author": "Truong Vinh Tran",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^11.3.0",
+    "edit-google-spreadsheet": "^0.3.0",
+    "loglevel": "^1.6.1",
+    "request": "^2.83.0"
+  }
+}

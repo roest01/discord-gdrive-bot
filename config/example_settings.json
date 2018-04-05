@@ -1,0 +1,15 @@
+{
+  "token":"",
+  "prefix":".",
+  "lang": "de",
+  "googleSheet": {
+      "spreadSheetName":"",
+      "workSheetName":"",
+      "client_id":"",
+      "client_secret":"",
+      "refresh_token":""
+  },
+  "restricted":["Leader","Moderator"],
+  "author":"C4CW",
+  "version":"0.1.0"
+}
