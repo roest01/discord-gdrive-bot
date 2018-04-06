@@ -97,7 +97,7 @@ const showItem = (callback) => {
             
             //TODO: sort rows by score
             for (let row of players) {
-                content = `${content}${row["name"]}: ${row["1"]} | ${row["2"]} | ${row["3"]} | ${row["4"]}\n`
+                content = `${content}${count+1}. ${row["name"]}: ${row["1"]} | ${row["2"]} | ${row["3"]} | ${row["4"]}\n`
                 
                 count = count + 1;
                 if (count % BLOCK_SIZE == 0) {
