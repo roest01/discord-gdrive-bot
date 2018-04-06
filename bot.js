@@ -40,12 +40,10 @@ bot.on("ready", async() => {
             // Heroku ENV token
         
             setInterval(function() {
-                console.log('refresh URL');
+                console.log(`Ping URL http://${process.env.HOST}.herokuapp.com`);
                 http.get(`http://${process.env.HOST}.herokuapp.com`);
-            }, 300000); // every 5 minutes (300000)
+            }, 1000 * 60 * 10); // every 10 minutes (300000)
         }
-        
-        
     } catch (e) {
         log.error(e.stack);
     }
@@ -96,7 +94,6 @@ bot.on("message", async message => {
         message.channel.send(embed);
         return;
     }
-
     
     // about
     if (strH.hasCmds(command,[`${PREFIX}about`])) {
