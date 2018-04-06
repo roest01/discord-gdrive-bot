@@ -5,6 +5,8 @@
   "googleSheet": {
       "spreadSheetName":"",
       "workSheetName":"",
+      "spreadsheetId":"",
+      "worksheetId":"",
       "client_id":"",
       "client_secret":"",
       "refresh_token":""

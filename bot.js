@@ -96,10 +96,15 @@ bot.on("message", async message => {
     
     //send weekly ep list
     if (strH.hasCmd(command,`${PREFIX}ep`)) {
-        const callback = function(embed) {
-            message.channel.send(embed);
+        const callback = function(list) {
+            
+            
+            for (let d of list) {
+                message.channel.send(d);
+            }
+            message.channel.stopTyping();
         };
-        
+        message.channel.startTyping();
         sheet.showEPList(callback);
         return;
     }

@@ -10,18 +10,35 @@ const i18n = require('../general/langSupport');
 const Spreadsheet = require('edit-google-spreadsheet');
 
 const showItem = (callback) => {
-    Spreadsheet.load({
+    
+    
+    let sprName = c.spreadSheetName();
+    let woName = c.workSheetName();
+    let sprId = c.spreadsheetId();
+    let woId = c.worksheetId();
+    
+    var header = {
         debug: true,
-        spreadsheetName: c.spreadSheetName(),
-        worksheetName: c.workSheetName(),
-        
         oauth2: {
           client_id: c.googleClientId(),
           client_secret: c.googleClientSecret(),
           refresh_token: c.googleRefreshToken()
         },
-
-      }, function sheetReady(err, spreadsheet) {
+    }
+    
+    if (sprId === "") {
+        header["spreadsheetName"] = sprName;
+    } else {
+        header["spreadsheetId"] = sprId;
+    }
+    
+    if (woId === "") {
+        header["worksheetName"] = woName;
+    } else {
+        header["worksheetId"] = woId;
+    }
+    
+    Spreadsheet.load(header, function sheetReady(err, spreadsheet) {
           spreadsheet.receive({getValues: true},function(err, rows, info) {
             if(err) throw err;
             
@@ -73,38 +90,48 @@ const showItem = (callback) => {
                 
                 players.push(entry);
             }
-
-
+            
+            // array with all message objects
+            var msgList = [];
             var content = "";
             
-            
             var count = 0;
+            const BLOCK_SIZE = 20;
             
+            //TODO: sort rows by score
             for (let row of players) {
                 content = `${content}${row["name"]}: ${row["1"]} | ${row["2"]} | ${row["3"]} | ${row["4"]}\n`
                 
                 count = count + 1;
-                if (count % 20 == 0) {
+                if (count % BLOCK_SIZE == 0) {
 
                     let embed = new Discord.RichEmbed();
                     embed.addField(`Name | ${dates[0]} | ${dates[1]} | ${dates[2]} | ${dates[3]}`,content);
-            
-                    callback(embed);
+                    
+                    msgList.push(embed);
                     content = "";
                 }
             
             }
             
-            let embed = new Discord.RichEmbed();
-            embed.addField(`Name | ${dates[0]} | ${dates[1]} | ${dates[2]} | ${dates[3]}`,content);
-            
-            callback(embed);
-            
+            if (count % BLOCK_SIZE != 0) {
+                let embed = new Discord.RichEmbed();
+                embed.addField(`Name | ${dates[0]} | ${dates[1]} | ${dates[2]} | ${dates[3]}`,content);
+                msgList.push(embed);
+            }
+            callback(msgList);
           });
       });
 }
 
+const player = (playerName) => {
+
+}
 // export
 module.exports = {
-    showEPList: showItem
+    
+    
+    
+    showEPList: showItem,
+    addPlayer: player
 };
