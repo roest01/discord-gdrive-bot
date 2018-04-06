@@ -120,6 +120,23 @@ bot.on("message", async message => {
             sheet.addPlayer(messageArray[1], callback);
             return
         }
+        
+        // find player
+        if (strH.hasCmd(command,`${PREFIX}find`)) {
+            const callback = function(response) {
+                
+                if (response == null) {
+                    message.channel.send(`${i18n.get('PlayerNotFound')}`);
+                } else {
+                    message.channel.send(response);
+                }
+                message.channel.stopTyping();
+            };
+
+            message.channel.startTyping();
+            sheet.findByName(messageArray[1], callback);
+            return
+        }
     }
 });
 
