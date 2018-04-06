@@ -4,6 +4,7 @@
 
 //import
 const Discord = require("discord.js");
+const http = require("http");
 const c = require("./general/constLoader");
 const i18n = require('./general/langSupport');
 const fm = require('./general/contentFormatter');
@@ -33,6 +34,18 @@ bot.on("ready", async() => {
         // show link for inviting
         let link = await bot.generateInvite(["ADMINISTRATOR"]);
         log.info(link);
+        
+        // heroku hack
+        if (typeof process.env.HOST != 'undefined') {
+            // Heroku ENV token
+        
+            setInterval(function() {
+                console.log('refresh URL');
+                http.get(`http://${process.env.HOST}.herokuapp.com`);
+            }, 300000); // every 5 minutes (300000)
+        }
+        
+        
     } catch (e) {
         log.error(e.stack);
     }
