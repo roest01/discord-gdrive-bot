@@ -10,7 +10,7 @@ const fm = require('./general/contentFormatter');
 const strH = require('./general/stringHelper');
 
 // VIEW
-const helpMsg = require('./View/helpMessage');
+const helpMsg = require('./view/helpMessage');
 const sheet = require('./view/sheetMessage');
 
 //logger
