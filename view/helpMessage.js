@@ -24,6 +24,8 @@ const helpMessage = (PREFIX, author, hasRole) => {
     if (hasRole) {
         embed.addField(`${PREFIX}ep`,
         `${i18n.get('InfoGuildMemberEPList')}`);
+        embed.addField(`${PREFIX}add`,
+        `${i18n.get('InfoAddingPlayer')}`);
     }
     return embed;
 }

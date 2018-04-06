@@ -98,7 +98,6 @@ bot.on("message", async message => {
     if (strH.hasCmd(command,`${PREFIX}ep`)) {
         const callback = function(list) {
             
-            
             for (let d of list) {
                 message.channel.send(d);
             }
@@ -107,6 +106,20 @@ bot.on("message", async message => {
         message.channel.startTyping();
         sheet.showEPList(callback);
         return;
+    }
+
+    if (messageArray.length > 1) {
+        //add player to raw data index
+        if (strH.hasCmd(command,`${PREFIX}add`)) {
+            const callback = function(response) {
+                message.channel.send(response);
+                message.channel.stopTyping();
+            };
+
+            message.channel.startTyping();
+            sheet.addPlayer(messageArray[1], callback);
+            return
+        }
     }
 });
 

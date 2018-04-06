@@ -4,9 +4,11 @@
   "lang": "de",
   "googleSheet": {
       "spreadSheetName":"",
-      "workSheetName":"",
       "spreadsheetId":"",
-      "worksheetId":"",
+      "worksheetP1":"Übersicht",
+      "worksheetP2":"Rohdaten",
+      "worksheetP3":"Archiv Rohdaten",
+      "worksheetP4":"Abmeldung",
       "client_id":"",
       "client_secret":"",
       "refresh_token":""

@@ -40,13 +40,6 @@ if (spreadSheetName == "") {
     spreadSheetName = process.env.SPREADSHEET_NAME;
 }
 
-// worksheet name
-var workSheetName = botSettings.googleSheet.workSheetName;
-if (workSheetName == "") {
-    // Heroku ENV token
-    workSheetName = process.env.WORKSHEET_NAME;
-}
-
 // spreadsheet id
 var spreadsheetId = botSettings.googleSheet.spreadsheetId;
 if (spreadsheetId == "") {
@@ -56,14 +49,34 @@ if (spreadsheetId == "") {
     }
 }
 
-// worksheet id
-var worksheetId = botSettings.googleSheet.worksheetId;
-if (worksheetId == "") {
-    if (typeof process.env.WORKSHEET_ID != 'undefined') {
-        // Heroku ENV token
-        worksheetId = process.env.WORKSHEET_ID;
-    }
+// worksheet Page 1
+var worksheetP1 = botSettings.googleSheet.worksheetP1;
+if (worksheetP1 == "") {
+    // Heroku ENV token
+    worksheetP1 = process.env.WORKSHEET_P1;
 }
+
+// worksheet Page 2
+var worksheetP2 = botSettings.googleSheet.worksheetP2;
+if (worksheetP2 == "") {
+    // Heroku ENV token
+    worksheetP2 = process.env.WORKSHEET_P2;
+}
+
+// worksheet Page 3
+var worksheetP3 = botSettings.googleSheet.worksheetP3;
+if (worksheetP3 == "") {
+    // Heroku ENV token
+    worksheetP3 = process.env.WORKSHEET_P3;
+}
+
+// worksheet Page 1
+var worksheetP4 = botSettings.googleSheet.worksheetP4;
+if (worksheetP4 == "") {
+    // Heroku ENV token
+    worksheetP4 = process.env.WORKSHEET_P4;
+}
+
 
 var googleClientId = botSettings.googleSheet.client_id;
 if (googleClientId == "") {
@@ -112,16 +125,24 @@ const getSpreadSheetName = () => {
     return spreadSheetName;
 }
 
-const getWorkSheetName = () => {
-    return workSheetName;
-}
-
 const getSpreadSheetId = () => {
     return spreadsheetId;
 }
 
-const getWorkSheetId = () => {
-    return worksheetId;
+const getworksheetP1 = () => {
+    return worksheetP1;
+}
+
+const getworksheetP2 = () => {
+    return worksheetP2;
+}
+
+const getworksheetP3 = () => {
+    return worksheetP3;
+}
+
+const getworksheetP4 = () => {
+    return worksheetP4;
 }
 
 const getGoogleClientId = () => {
@@ -151,9 +172,11 @@ module.exports = {
     restriction: getRestrictedRoles,
     language: lang,
     spreadSheetName: getSpreadSheetName,
-    workSheetName: getWorkSheetName,
     spreadsheetId: getSpreadSheetId,
-    worksheetId: getWorkSheetId,
+    worksheetP1: getworksheetP1,
+    worksheetP2: getworksheetP2,
+    worksheetP3: getworksheetP3,
+    worksheetP4: getworksheetP4,
     googleClientId: getGoogleClientId,
     googleClientSecret: getGoogleClientSecret,
     googleRefreshToken: getGoogleRefreshToken,
