@@ -7,6 +7,7 @@ const Discord = require("discord.js");
 
 const c = require("../general/constLoader");
 const i18n = require('../general/langSupport');
+const formatter = require('../general/contentFormatter');
 const Spreadsheet = require('edit-google-spreadsheet');
 
 // numbers of entries for each message
@@ -277,6 +278,73 @@ const player = (playerName, completion) => {
     });
 }
 
+const checkout = (user, message, completion) => {
+    
+    var header = {
+        debug: true,
+        worksheetName: c.worksheetP4(),
+        oauth2: {
+          client_id: c.googleClientId(),
+          client_secret: c.googleClientSecret(),
+          refresh_token: c.googleRefreshToken()
+        },
+    }
+    
+    let sprId = c.spreadsheetId();
+    
+    if (sprId === "") {
+        header["spreadsheetName"] = c.spreadSheetName();
+    } else {
+        header["spreadsheetId"] = sprId;
+    }
+    
+    Spreadsheet.load(header, function sheetReady(err, spreadsheet) {
+        // check number of available rows
+        
+        spreadsheet.metadata(function(err, metadata){
+            if(err) throw err;
+            
+            spreadsheet.receive({getValues: true},function(err, rows, info) {
+              if(err) throw err;
+              
+              
+              const callback = function(row) {
+
+                  var rowEntry = {};
+                  
+                  rowEntry["1"] = user;
+                  rowEntry["2"] = `${formatter.dateToString(new Date())}`;
+                  rowEntry["5"] = message;
+                  
+                  
+                  var rowData = {};
+                  rowData[`${row}`] = rowEntry;
+                  
+                  spreadsheet.add(rowData);
+                  spreadsheet.send(function(err) {
+                    if(err) throw err;
+                    completion(`${i18n.get('SuccessfulCheckoutMessage')}`);
+                  });
+              };
+              
+              const rowItems = Object.keys(rows);
+              var last = rowItems[rowItems.length - 1];
+              if (parseInt(last) < metadata.rowCount) {
+                  // enough rows for inserting
+                  callback(parseInt(last) + 1);
+              } else {
+                  spreadsheet.metadata({
+                      rowCount: metadata.rowCount+1
+                    }, function(err, metadata){
+                        if(err) throw err;
+                        callback(parseInt(last) + 1);
+                    });
+              }
+            });
+        });
+    });
+}
+
 function containsName(header, name) {
     
     for (let k of Object.keys(header)) {
@@ -292,5 +360,6 @@ module.exports = {
     
     showEPList: showItem,
     addPlayer: player,
+    checkout: checkout,
     findByName: findPlayer
 };

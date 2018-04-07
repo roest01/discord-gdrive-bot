@@ -5,6 +5,7 @@
   "InfoAddingPlayer":"Hinzufügen eines neuen Spielers",
   "InfoGuildMemberEPList":"Anzeige der Liste aller Mitglieder mit ihren Punkten",
   "SuccessfulAddingPlayer":"Spieler wurde erfolgreich hinzugefügt",
+  "SuccessfulCheckoutMessage":"Abwesenheit wurde erfolgreich vermerkt.",
   "FailedAddingPlayer":"Spieler existiert bereits in der Liste",
   "PlayerNotFound":"Spielername nicht gefunden"
 }

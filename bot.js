@@ -119,16 +119,34 @@ bot.on("message", async message => {
     }
 
     if (messageArray.length > 1) {
-        //add player to raw data index
-        if (strH.hasCmd(command,`${PREFIX}add`)) {
+        
+        if (hasRole) {
+        
+            //add player to raw data index
+            if (strH.hasCmd(command,`${PREFIX}add`)) {
+                const callback = function(response) {
+                    message.channel.send(response);
+                    message.channel.stopTyping();
+                };
+
+                message.channel.startTyping();
+                sheet.addPlayer(messageArray[1], callback);
+                return
+            }
+        }
+        
+        // check out user (afk / holidays)
+        if (strH.hasCmds(command,[`${PREFIX}afk`])) {
             const callback = function(response) {
-                message.channel.send(response);
+                var d = new Discord.RichEmbed().setAuthor(message.author.username);
+                d.setTitle(response)
+                message.channel.send(d);
                 message.channel.stopTyping();
             };
-
             message.channel.startTyping();
-            sheet.addPlayer(messageArray[1], callback);
-            return
+            sheet.checkout(message.author.username, message.content.substring(
+                messageArray[0].length + 1, message.content.length),callback);
+            return;
         }
         
         // find player

@@ -5,6 +5,7 @@
   "InfoAddingPlayer":"Adding new player",
   "InfoGuildMemberEPList":"Display all guild members with their score",
   "SuccessfulAddingPlayer":"Successful adding player",
+  "SuccessfulCheckoutMessage":"Successful notifying lead regarding checkout.",
   "FailedAddingPlayer":"Player already exist",
   "PlayerNotFound":"Could not found player with given name"
 }
