@@ -20,7 +20,9 @@ const helpMessage = (PREFIX, author, hasRole) => {
         .setAuthor(`${author}`)
         .setDescription(`${i18n.get('FollowingCommands')}`)
         .addField(`${PREFIX}about`, `${i18n.get('AboutBot')}`)
-        .addField(`${PREFIX}ep`, `${i18n.get('InfoGuildMemberEPList')}`);
+        .addField(`${PREFIX}ep`, `${i18n.get('InfoGuildMemberEPList')}`)
+        .addField(`${PREFIX}find NAME`, `${i18n.get('InfoFindPlayer')}`)
+        .addField(`${PREFIX}afk [TEXT]`, `${i18n.get('InfoCheckoutPlayer')}`);
     
     if (hasRole) {
         embed.addField(`${PREFIX}add`,`${i18n.get('InfoAddingPlayer')}`);
