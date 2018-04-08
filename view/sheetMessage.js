@@ -345,6 +345,97 @@ const checkout = (user, message, completion) => {
     });
 }
 
+const backup = (user, completion) => {
+    
+    
+    var header = {
+        debug: true,
+        worksheetName: c.worksheetP2(),
+        oauth2: {
+          client_id: c.googleClientId(),
+          client_secret: c.googleClientSecret(),
+          refresh_token: c.googleRefreshToken()
+        },
+    }
+    
+    let sprId = c.spreadsheetId();
+    
+    if (sprId === "") {
+        header["spreadsheetName"] = c.spreadSheetName();
+    } else {
+        header["spreadsheetId"] = sprId;
+    }
+    
+    Spreadsheet.load(header, function sheetReady(err, spreadsheet) {
+          spreadsheet.receive({getValues: true},function(err, rows, info) {
+            if(err) throw err;
+            
+            var index = null;
+            
+            let nameList = rows["1"];
+            
+            
+            for (let k of Object.keys(nameList)) {
+                if (nameList[k] === user) {
+                    index = k;
+                    break;
+                }
+            }
+            
+            if (index == null) {
+                completion(null);
+                return;
+            } else {
+                
+                var n = {};
+                n[index] = user;
+                var updateMap = {"1":n};
+                
+                for (let k of Object.keys(rows)) {
+                    
+                    //ignore header row
+                    if (k != "1") {
+                        
+                        //row position
+                        let rowPos = k;
+                        
+                        let singleRow = rows[k];
+                        
+                        if (singleRow.hasOwnProperty(index)) {
+                            var rowValue = {};
+                            rowValue[index] = singleRow[index];
+                            updateMap[k] = rowValue;
+                        } else {
+                            continue;
+                        }
+                    }
+                }
+                
+                for (let k of Object.keys(updateMap)) {
+                    
+                    var rowEntry = {};
+                    rowEntry[index] = "";
+                    
+                    updateMap[k] = rowEntry;
+                }
+                
+                
+                
+                //remove entry
+                spreadsheet.add(updateMap);
+                spreadsheet.send(function(err) {
+                  if(err) throw err;
+
+                  completion(`${i18n.get('SuccessfulAddingPlayer')}`);
+
+                });
+                
+            }
+          });
+      });
+    
+}
+
 function containsName(header, name) {
     
     for (let k of Object.keys(header)) {
@@ -361,5 +452,6 @@ module.exports = {
     showEPList: showItem,
     addPlayer: player,
     checkout: checkout,
-    findByName: findPlayer
+    findByName: findPlayer,
+    backup: backup
 };

@@ -133,6 +133,23 @@ bot.on("message", async message => {
                 sheet.addPlayer(messageArray[1], callback);
                 return
             }
+            
+            //store player from raw data
+            if (strH.hasCmd(command,`${PREFIX}backup`)) {
+                const callback = function(response) {
+                
+                    if (response == null) {
+                        message.channel.send(`${i18n.get('PlayerNotFound')}`);
+                    } else {
+                        message.channel.send(response);
+                    }
+                    message.channel.stopTyping();
+                };
+
+                message.channel.startTyping();
+                sheet.backup(messageArray[1], callback);
+                return;
+            }
         }
         
         // check out user (afk / holidays)
