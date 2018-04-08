@@ -411,29 +411,101 @@ const backup = (user, completion) => {
                     }
                 }
                 
+                var delMap = {};
+                
                 for (let k of Object.keys(updateMap)) {
-                    
+                
                     var rowEntry = {};
                     rowEntry[index] = "";
-                    
-                    updateMap[k] = rowEntry;
+                
+                    delMap[k] = rowEntry;
                 }
-                
-                
-                
+            
                 //remove entry
-                spreadsheet.add(updateMap);
+                spreadsheet.add(delMap);
                 spreadsheet.send(function(err) {
                   if(err) throw err;
-
-                  completion(`${i18n.get('SuccessfulAddingPlayer')}`);
-
+                  
+                  //back up player in archieve
+                  storePlayer(updateMap,index, completion);
                 });
                 
             }
           });
       });
+}
+
+const storePlayer = (playerData,index, completion) => {
+    var header = {
+        debug: true,
+        worksheetName: c.worksheetP3(),
+        oauth2: {
+          client_id: c.googleClientId(),
+          client_secret: c.googleClientSecret(),
+          refresh_token: c.googleRefreshToken()
+        },
+    }
     
+    let sprId = c.spreadsheetId();
+    
+    if (sprId === "") {
+        header["spreadsheetName"] = c.spreadSheetName();
+    } else {
+        header["spreadsheetId"] = sprId;
+    }
+    
+    Spreadsheet.load(header, function sheetReady(err, spreadsheet) {
+        // check number of available rows
+        
+        spreadsheet.metadata(function(err, metadata){
+            if(err) throw err;
+            
+            spreadsheet.receive({getValues: true},function(err, rows, info) {
+              if(err) throw err;
+              
+              let firstRow = rows['1'];
+              
+              const callback = function(column) {
+
+                  var pData = playerData;
+                  
+                  //update column
+                  for (let k of Object.keys(pData)) {
+                      
+                      let r = pData[k];
+                      
+                      var rowData = {};
+                      rowData[column] = r[index];
+                      pData[k] = rowData;
+                  }
+                  
+                  spreadsheet.add(pData);
+                  spreadsheet.send(function(err) {
+                    if(err) throw err;
+
+                      completion(`${i18n.get('SuccessfulBackupPlayer')}`);
+
+                  });
+              };
+              
+              const rowItems = Object.keys(firstRow);
+              
+              var last = rowItems[rowItems.length - 1];
+              if (parseInt(last) < metadata.colCount) {
+                  // enough columns for inserting
+                  callback(parseInt(last) + 1);
+              } else {
+                  spreadsheet.metadata({
+                      colCount: metadata.colCount+1
+                      }, function(err, metadata){
+                        if(err) throw err;
+                        callback(parseInt(last) + 1);
+
+                      });
+              }
+            });
+        });
+    });
 }
 
 function containsName(header, name) {

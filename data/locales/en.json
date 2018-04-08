@@ -3,10 +3,12 @@
   "DateFormattingCode":"en-US",
   "FollowingCommands":"Following commands are available:",
   "InfoAddingPlayer":"Adding new player",
+  "InfoBackupPlayer":"Backup an existing player",
   "InfoFindPlayer":"Displaying the achieving scores for recent weeks",
   "InfoGuildMemberEPList":"Display all guild members with their score",
   "InfoCheckoutPlayer":"Checkout with reason",
   "SuccessfulAddingPlayer":"Successful adding player",
+  "SuccessfulBackupPlayer":"Successful backup player",
   "SuccessfulCheckoutMessage":"Successful notifying lead regarding checkout.",
   "FailedAddingPlayer":"Player already exist",
   "PlayerNotFound":"Could not found player with given name"

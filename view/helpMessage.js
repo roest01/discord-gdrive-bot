@@ -25,7 +25,8 @@ const helpMessage = (PREFIX, author, hasRole) => {
         .addField(`${PREFIX}afk [TEXT]`, `${i18n.get('InfoCheckoutPlayer')}`);
     
     if (hasRole) {
-        embed.addField(`${PREFIX}add`,`${i18n.get('InfoAddingPlayer')}`);
+        embed.addField(`${PREFIX}add NAME`,`${i18n.get('InfoAddingPlayer')}`);
+        embed.addField(`${PREFIX}backup NAME`,`${i18n.get('InfoBackupPlayer')}`);
     }
     return embed;
 }
