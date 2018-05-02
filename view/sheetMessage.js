@@ -87,9 +87,11 @@ const showEPList = (callback) => {
                 players.push(entry);
             }
 
-            let pdfPath = pdfTemplater.visualManager(dates, players);
+            pdfTemplater.generateDocuments(dates, players).then(function(filePaths){
+                console.log(filePaths);
+                callback(filePaths); //@todo append image to chat
+            });
 
-            callback(pdfPath); //@todo 1. convert to .png 2. append image to chat
         });
     });
 };

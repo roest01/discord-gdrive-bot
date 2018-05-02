@@ -7,6 +7,7 @@ let fonts = {
 
 let pdfMake = require("pdfmake");
 let PdfPrinter = require("pdfmake/src/printer");
+let PdfToImage = require("pdf-image").PDFImage;
 let printer = new PdfPrinter(fonts);
 let fs = require('fs');
 
@@ -18,13 +19,40 @@ let config = {
 const VisualManager = (dates, players) => {
     let visualManager = this;
 
+    this.__construct = function(dates,players) {
+        return new Promise(function (resolve, reject) {
+            let pdfPath = visualManager.drawPDF(dates, players);
+            visualManager.drawImageFromPDF(pdfPath).then(function(pngPath){
+                resolve({
+                    pdfPath: pdfPath,
+                    pngPath: pngPath
+                })
+            });
+        })
+    };
+
     this.drawPDF = function(dates, players){
+        let targetFile = "pdf/overview.pdf";
         let template = this._createTemplate(dates, players);
 
         let pdfDoc = printer.createPdfKitDocument(template);
-        pdfDoc.pipe(fs.createWriteStream('pdf/visual.pdf'));
+        pdfDoc.pipe(fs.createWriteStream(targetFile));
         pdfDoc.end();
-        return 'pdf/visual.pdf';
+        return targetFile;
+    };
+
+    this.drawImageFromPDF = (path) => {
+        return new Promise(function(resolve, reject){
+            let pdfImage = new PdfToImage(path, {
+                combinedImage: true,
+                convertOptions: {
+                    "-quality": "100"
+                }
+            });
+            pdfImage.convertPage(0).then(function(imagePath){
+                resolve(imagePath);
+            });
+        });
     };
 
     this.getPlayersTable = function(headers, players){
@@ -118,11 +146,11 @@ const VisualManager = (dates, players) => {
         return "#"+hex(r) + hex(g) + hex(b);
     };
 
-    return this.drawPDF(dates, players);
+    return this.__construct(dates, players);
 };
 
 
 // export
 module.exports = {
-    visualManager: VisualManager
+    generateDocuments: VisualManager
 };
