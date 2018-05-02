@@ -46,11 +46,24 @@ const VisualManager = (dates, players) => {
     };
 
     this.getSinglePlayerRow = function(player){
-        return [player.name, player[1], player[2], player[3], player[4], player['avg'] ];
+        return [
+            {text: player.name.toString(), style: "tableBody"},
+            {text: player[1].toString(), style: "tableBody"},
+            {text: player[2].toString(), style: "tableBody"},
+            {text: player[3].toString(), style: "tableBody"},
+            {text: player[4].toString(), style: "tableBody"},
+            {text: player['avg'].toString(), style: "tableBody"}
+            ];
     };
 
     this._createTemplate = function(dates, players){
         return {
+            compress: false,
+            pageSize: {
+                width: 2480,
+                height: 118 * players.length + 1 //+ header
+            },
+            pageMargins: 40,
             content: [
                 {
                     style: 'tableBody',
@@ -64,11 +77,9 @@ const VisualManager = (dates, players) => {
                                 let number = currentCol.text.replace('.', '');
                                 if (number < config.epTarget){
                                     return visualManager.colorLuminance("FFFFFF", "ea7b75", number / config.epTarget);
-                                    return "#ff0000";
                                 }
+                                return "#FFFFFF";
                             }
-                            //return '#'+Math.floor(Math.random()*16777215).toString(16);
-                            //return (row % 2 === 0) ? '#CCCCCC' : null;
                         }
                     }
                 }
@@ -79,11 +90,12 @@ const VisualManager = (dates, players) => {
                     fillColor: "#5a97f2",
                     color: "#ffffff",
                     alignment: "center",
-                    margin: [2, 0, 2, 0]
+                    margin: [20, 20, 20, 20]
                 },
                 tableBody: {
-                    fontSize: 15,
-                    color: 'black'
+                    fontSize: 65,
+                    color: 'black',
+                    margin: [20, 20, 20, 20]
                 }
             },
             defaultStyle: {
