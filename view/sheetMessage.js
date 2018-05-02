@@ -8,14 +8,15 @@ const Discord = require("discord.js");
 const c = require("../general/constLoader");
 const i18n = require('../general/langSupport');
 const formatter = require('../general/contentFormatter');
+const pdfTemplater = require('../general/pdfTemplater');
 const Spreadsheet = require('edit-google-spreadsheet');
 
 // numbers of entries for each message
 const BLOCK_SIZE = 20;
 
-const showItem = (callback) => {
+const showEPList = (callback) => {
     
-    var header = {
+    let header = {
         debug: true,
         worksheetName: c.worksheetP1(),
         oauth2: {
@@ -23,7 +24,7 @@ const showItem = (callback) => {
           client_secret: c.googleClientSecret(),
           refresh_token: c.googleRefreshToken()
         },
-    }
+    };
     
     let sprId = c.spreadsheetId();
     
@@ -32,95 +33,66 @@ const showItem = (callback) => {
     } else {
         header["spreadsheetId"] = sprId;
     }
-    
-    
+
     Spreadsheet.load(header, function sheetReady(err, spreadsheet) {
-          spreadsheet.receive({getValues: true},function(err, rows, info) {
+        spreadsheet.receive({getValues: true},function(err, rows, info) {
             if(err) {
                 console.log(err);
                 throw err;
             }
-            
-            var players = [];
-            var dates = [];
-            
+
+            let players = [];
+            let dates = [];
+
             for (let row of Object.keys(rows)) {
-                
-                let r = rows[row];
-                
-                if (r["6"] === 'Ø') {
-                    dates.push(r["2"]);
-                    dates.push(r["3"]);
-                    dates.push(r["4"]);
-                    dates.push(r["5"]);
+
+                let currentRow = rows[row];
+
+                if (currentRow["6"] === 'Ø') {
+                    //isHeader
+                    dates = Object.values(currentRow);
                     continue;
                 }
-                
-                var entry = {};
-                entry["name"] = r["1"];
-                
-                var hasNewlyJoined = r["5"] == "-";
-                entry["4"] = r["5"];
-                
+
+                let entry = {};
+                entry["name"] = currentRow["1"];
+
+                let hasNewlyJoined = currentRow["5"] === "-";
+                entry["4"] = "-";
+
                 if (hasNewlyJoined) {
                     entry["3"] = "-";
                 } else {
-                    hasNewlyJoined = r["4"] == "-";
-                    entry["3"] = r["4"];
+                    hasNewlyJoined = currentRow["4"] === "-";
+                    entry["3"] = currentRow["4"];
                 }
-                
-                
+
+
                 if (hasNewlyJoined) {
                     entry["2"] = "-";
                 } else {
-                    hasNewlyJoined = r["3"] == "-";
-                    entry["2"] = r["3"];
+                    hasNewlyJoined = currentRow["3"] === "-";
+                    entry["2"] = currentRow["3"];
                 }
-                
+
                 if (hasNewlyJoined) {
                     entry["1"] = "-";
                 } else {
-                    hasNewlyJoined = r["2"] == "-";
-                    entry["1"] = r["2"];
+                    hasNewlyJoined = currentRow["2"] === "-";
+                    entry["1"] = currentRow["2"];
                 }
-                
-                
-                entry["avg"] = r["6"];
-                
+
+                entry["avg"] = currentRow["6"];
+
                 players.push(entry);
             }
-            
-            // array with all message objects
-            var msgList = [];
-            var content = "";
-            
-            var count = 0;
-            
-            //TODO: sort rows by score
-            for (let row of players) {
-                content = `${content}${count+1}. ${row["name"]}: ${row["1"]} | ${row["2"]} | ${row["3"]} | ${row["4"]}\n`
-                
-                count = count + 1;
-                if (count % BLOCK_SIZE == 0) {
 
-                    let embed = new Discord.RichEmbed();
-                    embed.addField(`Name | ${dates[0]} | ${dates[1]} | ${dates[2]} | ${dates[3]}`,content);
-                    
-                    msgList.push(embed);
-                    content = "";
-                }
-            
-            }
-            
-            if (count % BLOCK_SIZE != 0) {
-                let embed = new Discord.RichEmbed();
-                embed.addField(`Name | ${dates[0]} | ${dates[1]} | ${dates[2]} | ${dates[3]}`,content);
-                msgList.push(embed);
-            }
-            callback(msgList);
-          });
-      });
-}
+            let pdfPath = pdfTemplater.visualManager(dates, players);
+
+            callback(pdfPath); //@todo 1. convert to .png 2. append image to chat
+        });
+    });
+};
 
 
 const findPlayer = (playerName, completion) => {
@@ -520,8 +492,7 @@ function containsName(header, name) {
 
 // export
 module.exports = {
-    
-    showEPList: showItem,
+    showEPList: showEPList,
     addPlayer: player,
     checkout: checkout,
     findByName: findPlayer,

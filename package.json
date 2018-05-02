@@ -13,6 +13,7 @@
     "edit-google-spreadsheet": "^0.3.0",
     "http": "0.0.0",
     "loglevel": "^1.6.1",
-    "request": "^2.83.0"
+    "request": "^2.83.0",
+    "pdfmake": "^0.1.36"
   }
 }
