@@ -14,7 +14,7 @@ const Spreadsheet = require('edit-google-spreadsheet');
 // numbers of entries for each message
 const BLOCK_SIZE = 20;
 
-const showEPList = (callback) => {
+const generateEPList = (playerName) => {
     
     let header = {
         debug: true,
@@ -34,152 +34,77 @@ const showEPList = (callback) => {
         header["spreadsheetId"] = sprId;
     }
 
-    Spreadsheet.load(header, function sheetReady(err, spreadsheet) {
-        spreadsheet.receive({getValues: true},function(err, rows, info) {
-            if(err) {
-                console.log(err);
-                throw err;
-            }
-
-            let players = [];
-            let dates = [];
-
-            for (let row of Object.keys(rows)) {
-
-                let currentRow = rows[row];
-
-                if (currentRow["6"] === 'Ø') {
-                    //isHeader
-                    dates = Object.values(currentRow);
-                    continue;
+    return new Promise(function(resolve, reject){
+        Spreadsheet.load(header, function sheetReady(err, spreadsheet) {
+            spreadsheet.receive({getValues: true},function(err, rows, info) {
+                if (err){
+                    reject(err);
+                    return;
                 }
 
-                let entry = {};
-                entry["name"] = currentRow["1"];
+                let players = [];
+                let dates = [];
 
-                let hasNewlyJoined = currentRow["5"] === "-";
-                entry["4"] = "-";
+                for (let row of Object.keys(rows)) {
+                    let currentRow = rows[row];
+                    let isHeader = (currentRow["6"] === 'Ø');
 
-                if (hasNewlyJoined) {
-                    entry["3"] = "-";
-                } else {
-                    hasNewlyJoined = currentRow["4"] === "-";
-                    entry["3"] = currentRow["4"];
+                    if (isHeader) {
+                        //isHeader
+                        dates = Object.values(currentRow);
+                        continue;
+                    }
+
+                    if (isHeader || !playerName || playerName === currentRow["1"]) {
+                        //@todo getPlayerByName structure
+
+                        let entry = {};
+                        entry["name"] = currentRow["1"];
+
+                        let hasNewlyJoined = currentRow["5"] === "-";
+                        entry["4"] = currentRow["5"];
+
+                        if (hasNewlyJoined) {
+                            entry["3"] = "-";
+                        } else {
+                            hasNewlyJoined = currentRow["4"] === "-";
+                            entry["3"] = currentRow["4"];
+                        }
+
+
+                        if (hasNewlyJoined) {
+                            entry["2"] = "-";
+                        } else {
+                            hasNewlyJoined = currentRow["3"] === "-";
+                            entry["2"] = currentRow["3"];
+                        }
+
+                        if (hasNewlyJoined) {
+                            entry["1"] = "-";
+                        } else {
+                            hasNewlyJoined = currentRow["2"] === "-";
+                            entry["1"] = currentRow["2"];
+                        }
+
+                        entry["avg"] = currentRow["6"];
+
+                        players.push(entry);
+
+                    }
                 }
 
-
-                if (hasNewlyJoined) {
-                    entry["2"] = "-";
-                } else {
-                    hasNewlyJoined = currentRow["3"] === "-";
-                    entry["2"] = currentRow["3"];
-                }
-
-                if (hasNewlyJoined) {
-                    entry["1"] = "-";
-                } else {
-                    hasNewlyJoined = currentRow["2"] === "-";
-                    entry["1"] = currentRow["2"];
-                }
-
-                entry["avg"] = currentRow["6"];
-
-                players.push(entry);
-            }
-
-            pdfTemplater.generateDocuments(dates, players).then(function(filePaths){
-                console.log(filePaths);
-                callback(filePaths); //@todo append image to chat
+                return pdfTemplater.generateDocuments(dates, players).then(function(filePaths){
+                    resolve(filePaths)
+                });
             });
-
         });
-    });
+    })
 };
 
 
-const findPlayer = (playerName, completion) => {
-    
-    var header = {
-        debug: true,
-        worksheetName: c.worksheetP1(),
-        oauth2: {
-          client_id: c.googleClientId(),
-          client_secret: c.googleClientSecret(),
-          refresh_token: c.googleRefreshToken()
-        },
-    }
-    
-    let sprId = c.spreadsheetId();
-    
-    if (sprId === "") {
-        header["spreadsheetName"] = c.spreadSheetName();
-    } else {
-        header["spreadsheetId"] = sprId;
-    }
-    
-    Spreadsheet.load(header, function sheetReady(err, spreadsheet) {
-          spreadsheet.receive({getValues: true},function(err, rows, info) {
-            if(err) throw err;
-            
-            var players = [];
-            var dates = [];
-            
-            for (let row of Object.keys(rows)) {
-                
-                let r = rows[row];
-                
-                if (r["6"] === 'Ø') {
-                    dates.push(r["2"]);
-                    dates.push(r["3"]);
-                    dates.push(r["4"]);
-                    dates.push(r["5"]);
-                    continue;
-                }
-                
-                if (playerName === r["1"]) {
-                    var entry = {};
-                    entry["name"] = r["1"];
-                
-                    var hasNewlyJoined = r["5"] == "-";
-                    entry["4"] = r["5"];
-                
-                    if (hasNewlyJoined) {
-                        entry["3"] = "-";
-                    } else {
-                        hasNewlyJoined = r["4"] == "-";
-                        entry["3"] = r["4"];
-                    }
-                
-                
-                    if (hasNewlyJoined) {
-                        entry["2"] = "-";
-                    } else {
-                        hasNewlyJoined = r["3"] == "-";
-                        entry["2"] = r["3"];
-                    }
-                
-                    if (hasNewlyJoined) {
-                        entry["1"] = "-";
-                    } else {
-                        hasNewlyJoined = r["2"] == "-";
-                        entry["1"] = r["2"];
-                    }
-                
-                
-                    entry["avg"] = r["6"];
-                
-                    let content = `${entry["name"]}: ${entry["1"]} | ${entry["2"]} | ${entry["3"]} | ${entry["4"]}\n`
-                    let embed = new Discord.RichEmbed();
-                    embed.addField(`Name | ${dates[0]} | ${dates[1]} | ${dates[2]} | ${dates[3]}`,content);
-                    completion(embed);
-                    return;
-                }
-            }
-            
-            completion(null);
-          });
-      });
-}
+const findPlayer = (playerName) => {
+    return generateEPList(playerName);
+};
 
 const player = (playerName, completion) => {
     
@@ -494,7 +419,7 @@ function containsName(header, name) {
 
 // export
 module.exports = {
-    showEPList: showEPList,
+    generateEPList: generateEPList,
     addPlayer: player,
     checkout: checkout,
     findByName: findPlayer,

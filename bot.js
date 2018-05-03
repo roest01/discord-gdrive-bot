@@ -3,7 +3,7 @@
 // ================
 
 //import
-const Discord = require("discord.js");
+const { RichEmbed, Client, Attachment } = require("discord.js");
 const http = require("http");
 const c = require("./general/constLoader");
 const i18n = require('./general/langSupport');
@@ -22,7 +22,7 @@ log.setLevel('info');
 // prefix for commands
 const PREFIX = c.prefix();
 
-const bot = new Discord.Client({
+const bot = new Client({
     disableEveryone: true
 });
 
@@ -98,7 +98,7 @@ bot.on("message", async message => {
     // about
     if (strH.hasCmds(command,[`${PREFIX}about`])) {
 
-        var d = new Discord.RichEmbed().setAuthor(message.author.username);
+        var d = new RichEmbed().setAuthor(message.author.username);
         const version = c.version();
         message.channel.send(d.addField(`${i18n.get('AboutBot')} [${version}]`, `Creator: ${c.author()}`));
         return;
@@ -106,15 +106,15 @@ bot.on("message", async message => {
     
     //send weekly ep list
     if (strH.hasCmd(command,`${PREFIX}ep`)) {
-        const callback = function(list) {
-            
-            for (let d of list) {
-                message.channel.send(d);
-            }
-            message.channel.stopTyping();
-        };
         message.channel.startTyping();
-        sheet.showEPList(callback);
+        sheet.generateEPList().then(function(filePaths){
+            let cDate = new Date(Date.now()).toLocaleString(i18n.get('DateFormattingCode'));
+            let epListPNG = new RichEmbed()
+                .addField(`${i18n.get('EPGeneratedAt')} ${cDate}`, `\u200B`)
+                .attachFile(new Attachment(filePaths.pngPath));
+            message.channel.send(epListPNG);
+            message.channel.stopTyping();
+        });
         return;
     }
 
@@ -155,7 +155,7 @@ bot.on("message", async message => {
         // check out user (afk / holidays)
         if (strH.hasCmds(command,[`${PREFIX}afk`])) {
             const callback = function(response) {
-                var d = new Discord.RichEmbed().setAuthor(message.author.username);
+                var d = new RichEmbed().setAuthor(message.author.username);
                 d.setTitle(response)
                 message.channel.send(d);
                 message.channel.stopTyping();
@@ -168,19 +168,17 @@ bot.on("message", async message => {
         
         // find player
         if (strH.hasCmd(command,`${PREFIX}find`)) {
-            const callback = function(response) {
-                
-                if (response == null) {
-                    message.channel.send(`${i18n.get('PlayerNotFound')}`);
-                } else {
-                    message.channel.send(response);
-                }
-                message.channel.stopTyping();
-            };
-
             message.channel.startTyping();
-            sheet.findByName(messageArray[1], callback);
-            return
+            sheet.findByName(messageArray[1]).then(function(filePaths){
+                let cDate = new Date(Date.now()).toLocaleString(i18n.get('DateFormattingCode'));
+                let epListPNG = new RichEmbed()
+                    .addField(`${i18n.get('EPGeneratedAt')} ${cDate}`, `\u200B`)
+                    .attachFile(new Attachment(filePaths.pngPath));
+                message.channel.send(epListPNG);
+                message.channel.stopTyping();
+            }).catch(function(e){
+                console.log(e);
+            });
         }
     }
 });

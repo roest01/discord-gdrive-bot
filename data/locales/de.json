@@ -11,5 +11,6 @@
   "SuccessfulBackupPlayer":"Spieler wurde erfolgreich archiviert",
   "SuccessfulCheckoutMessage":"Abwesenheit wurde erfolgreich vermerkt.",
   "FailedAddingPlayer":"Spieler existiert bereits in der Liste",
-  "PlayerNotFound":"Spielername nicht gefunden"
+  "PlayerNotFound":"Spielername nicht gefunden",
+  "EPGeneratedAt":"EP Bericht generiert am"
 }
