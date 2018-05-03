@@ -57,6 +57,7 @@ const generateEPList = (playerName) => {
 
                     if (isHeader || !playerName || playerName === currentRow["1"]) {
                         //@todo getPlayerByName structure
+                        // test
 
                         let entry = {};
                         entry["name"] = currentRow["1"];
