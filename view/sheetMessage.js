@@ -44,6 +44,9 @@ const generateEPList = (playerName) => {
 
                 let players = [];
                 let dates = [];
+                
+                //prepare content for indexing
+                const map = mapContent(rows);
 
                 for (let row of Object.keys(rows)) {
                     let currentRow = rows[row];
@@ -57,7 +60,8 @@ const generateEPList = (playerName) => {
 
                     if (isHeader || !playerName || playerName === currentRow["1"]) {
                         //@todo getPlayerByName structure
-                        // test
+                        //getPlayerByName(map, playerName);
+                        //getPlayerByIndex(map, 2);
 
                         let entry = {};
                         entry["name"] = currentRow["1"];
@@ -406,6 +410,100 @@ const storePlayer = (playerData,index, completion) => {
             });
         });
     });
+}
+
+
+/**
+ * Prepare content for indexing
+ * @private
+ * @param {Object} content input from server request
+ * @returns map with two keys: header: contains header as array, body: array with player values (array) 
+ * @type Object
+ */
+function mapContent(content) {
+    // {'header','body'}
+    
+    var map = {'header':[],'body':[]};
+    
+    var players = [];
+    
+    
+    for (let row of Object.keys(content)) {
+        
+        let r = content[row];
+        
+        if (r["6"] === 'Ø') {
+            // collect header cell content
+            //TODO: r instead of every cell?
+            map['header'] = [r["2"],r["3"],r["4"],r["5"]]
+            continue;
+        } else {
+            var body = [];
+            
+            //check whether newly joined
+            var isNewMember = r['5'] == '-';
+            
+            // push latest
+            body.push(r['5']);
+            
+            for (var i=4;i>=2;i--) {
+                if (isNewMember) {
+                    body.push('-');
+                } else {
+                    isNewMember = r[`${i}`] == "-";
+                    body.push(r[`${i}`]);
+                }
+            }
+            
+            //name
+            body.push(r['1']);
+            
+            map['body'].push(body.reverse());
+        }
+    }
+    return map;
+}
+
+/**
+ * Find data row by given index
+ * @private
+ * @param {Object} data map with sheet content
+ * @param {number} position row index
+ * @returns array for matching position, or null if invalid data or position is invalid 
+ * @type Object
+ */
+function getPlayerByIndex(data,position) {
+    //invalid data
+    if (data == undefined || data == null) {
+        return null;
+    } else {
+        // array bounds exception
+        if (position < 0 || position >= data.body.length) {
+            return null;
+        } else {
+            return data.body[position];
+        }
+    }
+}
+
+
+/**
+ * Find data row by given name
+ * @private
+ * @param {Object} data map with sheet content
+ * @param {string} searching name
+ * @returns array for matching position, or null if invalid data or name 
+ * @type Object
+ */
+function getPlayerByName(data, name) {
+    //invalid data / name
+    if (data == undefined || data == null || name == null || name.length == 0) {
+        return null;
+    } else {
+        return data.body.find(function(element) {
+            return element[0] == name;
+        });
+    }
 }
 
 function containsName(header, name) {
