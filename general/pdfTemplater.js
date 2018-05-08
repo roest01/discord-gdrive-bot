@@ -21,24 +21,33 @@ const VisualManager = (dates, players) => {
 
     this.__construct = function(dates,players) {
         return new Promise(function (resolve, reject) {
-            let pdfPath = visualManager.drawPDF(dates, players);
-            visualManager.drawImageFromPDF(pdfPath).then(function(pngPath){
-                resolve({
-                    pdfPath: pdfPath,
-                    pngPath: pngPath
-                })
+            visualManager.drawPDF(dates, players).then(function(pdfPath){
+                visualManager.drawImageFromPDF(pdfPath).then(function(pngPath){
+                    resolve({
+                        pdfPath: pdfPath,
+                        pngPath: pngPath
+                    })
+                });
             });
         })
     };
 
     this.drawPDF = function(dates, players){
-        let targetFile = "pdf/overview.pdf";
-        let template = this._createTemplate(dates, players);
+        let visualManager = this;
 
-        let pdfDoc = printer.createPdfKitDocument(template);
-        pdfDoc.pipe(fs.createWriteStream(targetFile));
-        pdfDoc.end();
-        return targetFile;
+        return new Promise(function (resolve, reject) {
+            let targetFile = "pdf/overview.pdf";
+            let template = visualManager._createTemplate(dates, players);
+
+            let pdfDoc = printer.createPdfKitDocument(template);
+            let writeStream = fs.createWriteStream(targetFile);
+            pdfDoc.pipe(writeStream);
+            pdfDoc.end();
+
+            writeStream.on('finish', function () {
+                resolve(targetFile)
+            });
+        });
     };
 
     this.drawImageFromPDF = (path) => {
@@ -49,8 +58,8 @@ const VisualManager = (dates, players) => {
                     "-quality": "100"
                 }
             });
-            pdfImage.convertPage(0).then(function(imagePath){
-                resolve(imagePath);
+            pdfImage.convertFile().then(function(imagePaths){
+                resolve(imagePaths);
             });
         });
     };
@@ -67,7 +76,7 @@ const VisualManager = (dates, players) => {
            })
         });
 
-        players.forEach(function(player){
+        players.each(function(player){
             playersRow.push(visualManager.getSinglePlayerRow(player));
         });
         return playersRow;
@@ -76,11 +85,11 @@ const VisualManager = (dates, players) => {
     this.getSinglePlayerRow = function(player){
         return [
             {text: player.name.toString(), style: "tableBody"},
-            {text: player[1].toString(), style: "tableBody"},
-            {text: player[2].toString(), style: "tableBody"},
-            {text: player[3].toString(), style: "tableBody"},
-            {text: player[4].toString(), style: "tableBody"},
-            {text: player['avg'].toString(), style: "tableBody"}
+            {text: player.week1.toString(), style: "tableBody"},
+            {text: player.week2.toString(), style: "tableBody"},
+            {text: player.week3.toString(), style: "tableBody"},
+            {text: player.week4.toString(), style: "tableBody"},
+            {text: player.avg.toString(), style: "tableBody"}
             ];
     };
 
@@ -89,7 +98,7 @@ const VisualManager = (dates, players) => {
             compress: false,
             pageSize: {
                 width: 2480,
-                height: 118 * players.length + 1 //+ header
+                height: 118 * (players.count() + 2) //+ header
             },
             pageMargins: 40,
             content: [

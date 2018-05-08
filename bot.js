@@ -107,7 +107,8 @@ bot.on("message", async message => {
     //send weekly ep list
     if (strH.hasCmd(command,`${PREFIX}ep`)) {
         message.channel.startTyping();
-        sheet.generateEPList().then(function(filePaths){
+        let epList = new sheet.EPList();
+        epList.generatePNG().then(function(filePaths){
             let cDate = new Date(Date.now()).toLocaleString(i18n.get('DateFormattingCode'));
             let epListPNG = new RichEmbed()
                 .addField(`${i18n.get('EPGeneratedAt')} ${cDate}`, `\u200B`)
@@ -169,15 +170,18 @@ bot.on("message", async message => {
         // find player
         if (strH.hasCmd(command,`${PREFIX}find`)) {
             message.channel.startTyping();
-            sheet.findByName(messageArray[1]).then(function(filePaths){
+            let epList = new sheet.EPList();
+            epList.generatePNG(messageArray[1]).then(function(filePaths){
                 let cDate = new Date(Date.now()).toLocaleString(i18n.get('DateFormattingCode'));
                 let epListPNG = new RichEmbed()
                     .addField(`${i18n.get('EPGeneratedAt')} ${cDate}`, `\u200B`)
                     .attachFile(new Attachment(filePaths.pngPath));
                 message.channel.send(epListPNG);
-                message.channel.stopTyping();
             }).catch(function(e){
                 console.log(e);
+            }).finally(function(){
+                console.log("PDF done");
+                message.channel.stopTyping();
             });
         }
     }

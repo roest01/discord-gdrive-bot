@@ -15,6 +15,7 @@
     "loglevel": "^1.6.1",
     "request": "^2.83.0",
     "pdfmake": "^0.1.36",
-    "pdf-image": "^1.0.5"
+    "pdf-image": "^2.0.0",
+    "taffy": "^2.6.2"
   }
 }
