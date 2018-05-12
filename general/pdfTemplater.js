@@ -16,8 +16,10 @@ let config = {
     epTarget: 1100
 };
 
-const VisualManager = (dates, players) => {
+const VisualManager = (dates, players, options) => {
     let visualManager = this;
+    visualManager.options = options;
+    visualManager.players = players;
 
     this.__construct = function(dates,players) {
         return new Promise(function (resolve, reject) {
@@ -94,6 +96,7 @@ const VisualManager = (dates, players) => {
     };
 
     this._createTemplate = function(dates, players){
+        let visualManager = this;
         return {
             compress: false,
             pageSize: {
@@ -108,13 +111,24 @@ const VisualManager = (dates, players) => {
                         body: this.getPlayersTable(dates, players)
                     },
                     layout: {
-                        fillColor: function (row, node, column) {
+                        fillColor: function (rowNr, node, columnNr) {
                             if (!!node.table){
-                                let currentCol = node.table.body[row][column];
+                                let currentRow = node.table.body[rowNr];
+                                let currentCol = currentRow[columnNr];
                                 let number = currentCol.text.replace('.', '');
+
                                 if (number < config.epTarget){
                                     return visualManager.colorLuminance("FFFFFF", "ea7b75", number / config.epTarget);
+                                } else if (!!visualManager.options.markRow){
+                                    let currentPlayer = visualManager.players.filter({name:currentRow[0].text});
+                                    currentPlayer = currentPlayer.first();
+
+                                    let markRow = visualManager.options.markRow;
+                                    if (currentPlayer[markRow.field] === markRow.value){
+                                        return "#E8E8E8";
+                                    }
                                 }
+
                                 return "#FFFFFF";
                             }
                         }

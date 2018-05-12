@@ -19,6 +19,7 @@ const BLOCK_SIZE = 20;
 
 const EPList = function() {
     let epList = this;
+    epList.options = {};
 
     epList.__construct = function(){
         let sprId = c.spreadsheetId();
@@ -55,7 +56,7 @@ const EPList = function() {
         });
     };
 
-    epList.getData = function(playerName){
+    epList.getData = function(){
         return new Promise(function (resolve, reject) {
             epList._loadData().then(function(dataRows) {
                 let dates = [];
@@ -102,33 +103,48 @@ const EPList = function() {
 
     epList.generatePNG = function(playerName){
         return new Promise(function(resolve, reject){
-            epList.getData(playerName).then(function(){
+            epList.getData().then(function(){
                 let players = epList.players();
+
                 if (!!playerName){
-                    let specificPlayer = epList.players({name:playerName});
-                    let gtPlayers = epList.players({week4: {gt: specificPlayer.first().week4}}).order("week4").limit(2);
-                    let ltPlayers = epList.players({week4: {lt: specificPlayer.first().week4}}).limit(2);
-
-                    let nameBasedSearch = [{
-                        name: specificPlayer.first().name
-                    }];
-                    gtPlayers.each(function(gtP){
-                        nameBasedSearch.push({name: gtP.name});
-                    });
-                    ltPlayers.each(function(ltP){
-                        nameBasedSearch.push({name: ltP.name});
-                    });
-
-                    players = epList.players(nameBasedSearch).order("week4 asc");
+                   players = epList.filterPlayersByName(players, playerName);
                 }
 
 
-                return pdfTemplater.generateDocuments(epList.dates, players)
+
+                if (players.count() < 2){ //header == 1
+                    reject(i18n.get('PlayerNotFound'));
+                    //only header found
+                }
+
+                return pdfTemplater.generateDocuments(epList.dates, players, epList.options)
                     .then(function(filePath){
                         resolve(filePath)
                     });
             });
         });
+    };
+
+    epList.filterPlayersByName = function(players, playerName){
+        epList.options.markRow = {
+            field: "name",
+            value: playerName
+        };
+        let specificPlayer = epList.players({name:playerName});
+        let gtPlayers = epList.players({week4: {gt: specificPlayer.first().week4}}).order("week4").limit(2);
+        let ltPlayers = epList.players({week4: {lt: specificPlayer.first().week4}}).limit(2);
+
+        let nameBasedSearch = [{
+            name: specificPlayer.first().name
+        }];
+        gtPlayers.each(function(gtP){
+            nameBasedSearch.push({name: gtP.name});
+        });
+        ltPlayers.each(function(ltP){
+            nameBasedSearch.push({name: ltP.name});
+        });
+
+        return epList.players(nameBasedSearch).order("week4 asc");
     }
 };
 
