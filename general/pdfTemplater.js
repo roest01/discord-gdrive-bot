@@ -29,8 +29,8 @@ const VisualManager = (dates, players, options) => {
                         pdfPath: pdfPath,
                         pngPath: pngPath
                     })
-                });
-            });
+                }).catch(reject);
+            }).catch(reject);
         })
     };
 
@@ -62,7 +62,7 @@ const VisualManager = (dates, players, options) => {
             });
             pdfImage.convertFile().then(function(imagePaths){
                 resolve(imagePaths);
-            });
+            }).catch(reject);
         });
     };
 

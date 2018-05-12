@@ -120,7 +120,7 @@ const EPList = function() {
                 return pdfTemplater.generateDocuments(epList.dates, players, epList.options)
                     .then(function(filePath){
                         resolve(filePath)
-                    });
+                    }).catch(reject);
             });
         });
     };

@@ -109,11 +109,15 @@ bot.on("message", async message => {
         message.channel.startTyping();
         let epList = new sheet.EPList();
         epList.generatePNG().then(function(filePaths){
-            let cDate = new Date(Date.now()).toLocaleString(i18n.get('DateFormattingCode'));
-            let epListPNG = new RichEmbed()
-                .addField(`${i18n.get('EPGeneratedAt')} ${cDate}`, `\u200B`)
-                .attachFile(new Attachment(filePaths.pngPath));
-            message.channel.send(epListPNG);
+            message.channel.send({
+                files: [
+                    filePaths.pngPath
+                ]
+            });
+        }).catch(function(e){
+            message.channel.send(e);
+            console.log(e);
+        }).finally(function(){
             message.channel.stopTyping();
         });
         return;
