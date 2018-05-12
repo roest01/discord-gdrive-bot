@@ -114,11 +114,11 @@ bot.on("message", async message => {
                     filePaths.pngPath
                 ]
             });
+            message.channel.stopTyping();
         }).catch(function(e){
             message.channel.send(e);
-            console.log(e);
-        }).finally(function(){
             message.channel.stopTyping();
+            console.log(e);
         });
         return;
     }
@@ -181,11 +181,11 @@ bot.on("message", async message => {
                         filePaths.pngPath
                     ]
                 });
+                message.channel.stopTyping();
             }).catch(function(e){
                 message.channel.send(e);
-                console.log(e);
-            }).finally(function(){
                 message.channel.stopTyping();
+                console.log(e);
             });
         }
     }
