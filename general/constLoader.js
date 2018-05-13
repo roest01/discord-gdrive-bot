@@ -162,7 +162,7 @@ const author = () => {
 }
 
 const getVersion = () => {
-    return botSettings.version;
+    return '0.3.0';
 } 
 
 // export
