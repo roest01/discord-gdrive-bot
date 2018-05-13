@@ -4,208 +4,150 @@
 
 //import
 const Discord = require("discord.js");
+const _ = require("lodash");
+const Taffy = require("taffy");
 
 const c = require("../general/constLoader");
 const i18n = require('../general/langSupport');
 const formatter = require('../general/contentFormatter');
+const pdfTemplater = require('../general/pdfTemplater');
 const Spreadsheet = require('edit-google-spreadsheet');
+
 
 // numbers of entries for each message
 const BLOCK_SIZE = 20;
 
-const showItem = (callback) => {
-    
-    var header = {
-        debug: true,
-        worksheetName: c.worksheetP1(),
-        oauth2: {
-          client_id: c.googleClientId(),
-          client_secret: c.googleClientSecret(),
-          refresh_token: c.googleRefreshToken()
-        },
-    }
-    
-    let sprId = c.spreadsheetId();
-    
-    if (sprId === "") {
-        header["spreadsheetName"] = c.spreadSheetName();
-    } else {
-        header["spreadsheetId"] = sprId;
-    }
-    
-    
-    Spreadsheet.load(header, function sheetReady(err, spreadsheet) {
-          spreadsheet.receive({getValues: true},function(err, rows, info) {
-            if(err) {
-                console.log(err);
-                throw err;
-            }
-            
-            var players = [];
-            var dates = [];
-            
-            for (let row of Object.keys(rows)) {
-                
-                let r = rows[row];
-                
-                if (r["6"] === 'Ø') {
-                    dates.push(r["2"]);
-                    dates.push(r["3"]);
-                    dates.push(r["4"]);
-                    dates.push(r["5"]);
-                    continue;
-                }
-                
-                var entry = {};
-                entry["name"] = r["1"];
-                
-                var hasNewlyJoined = r["5"] == "-";
-                entry["4"] = r["5"];
-                
-                if (hasNewlyJoined) {
-                    entry["3"] = "-";
-                } else {
-                    hasNewlyJoined = r["4"] == "-";
-                    entry["3"] = r["4"];
-                }
-                
-                
-                if (hasNewlyJoined) {
-                    entry["2"] = "-";
-                } else {
-                    hasNewlyJoined = r["3"] == "-";
-                    entry["2"] = r["3"];
-                }
-                
-                if (hasNewlyJoined) {
-                    entry["1"] = "-";
-                } else {
-                    hasNewlyJoined = r["2"] == "-";
-                    entry["1"] = r["2"];
-                }
-                
-                
-                entry["avg"] = r["6"];
-                
-                players.push(entry);
-            }
-            
-            // array with all message objects
-            var msgList = [];
-            var content = "";
-            
-            var count = 0;
-            
-            //TODO: sort rows by score
-            for (let row of players) {
-                content = `${content}${count+1}. ${row["name"]}: ${row["1"]} | ${row["2"]} | ${row["3"]} | ${row["4"]}\n`
-                
-                count = count + 1;
-                if (count % BLOCK_SIZE == 0) {
+const EPList = function() {
+    let epList = this;
+    epList.options = {};
 
-                    let embed = new Discord.RichEmbed();
-                    embed.addField(`Name | ${dates[0]} | ${dates[1]} | ${dates[2]} | ${dates[3]}`,content);
-                    
-                    msgList.push(embed);
-                    content = "";
+    epList.__construct = function(){
+        let sprId = c.spreadsheetId();
+
+        epList.header = {
+            debug: true,
+            worksheetName: c.worksheetP1(),
+            oauth2: {
+                client_id: c.googleClientId(),
+                client_secret: c.googleClientSecret(),
+                refresh_token: c.googleRefreshToken()
+            },
+        };
+
+        if (sprId === "") {
+            epList.header["spreadsheetName"] = c.spreadSheetName();
+        } else {
+            epList.header["spreadsheetId"] = sprId;
+        }
+    };
+    epList.__construct();
+
+    epList._loadData = function(){
+        return new Promise(function(resolve, reject){
+            Spreadsheet.load(epList.header, function sheetReady(err, spreadsheet) {
+                spreadsheet.receive({getValues: true}, function(err, rows, info) {
+                    if (err){
+                        reject(err);
+                        return false;
+                    }
+                    resolve(rows);
+                });
+            });
+        });
+    };
+
+    epList.getData = function(){
+        return new Promise(function (resolve, reject) {
+            epList._loadData().then(function(dataRows) {
+                let dates = [];
+                let players = [];
+                _.each(dataRows, function(currentRow){
+                    let isHeader = (currentRow["6"] === 'Ø');
+
+                    if (isHeader) {
+                        //isHeader
+                        dates = Object.values(currentRow);
+                        return;
+                    }
+
+                    if (currentRow[5] === "-"){
+                        currentRow[4] = "-";
+                        currentRow[3] = "-";
+                        currentRow[2] = "-";
+                    }
+                    if (currentRow[4] === "-"){
+                        currentRow[3] = "-";
+                        currentRow[2] = "-";
+                    }
+                    if (currentRow[3] === "-"){
+                        currentRow[2] = "-";
+                    }
+
+                    players.push({
+                        name: currentRow["1"],
+                        avg: currentRow["6"],
+                        week1: currentRow["2"],
+                        week2: currentRow["3"],
+                        week3: currentRow["4"],
+                        week4: currentRow["5"]
+                    });
+                });
+                epList.players = new Taffy(players);
+                epList.dates = dates;
+                resolve();
+            }).catch(function(e){
+                reject(e);
+            });
+        });
+    };
+
+    epList.generatePNG = function(playerName){
+        return new Promise(function(resolve, reject){
+            epList.getData().then(function(){
+                let players = epList.players();
+
+                if (!!playerName){
+                   players = epList.filterPlayersByName(players, playerName);
                 }
-            
-            }
-            
-            if (count % BLOCK_SIZE != 0) {
-                let embed = new Discord.RichEmbed();
-                embed.addField(`Name | ${dates[0]} | ${dates[1]} | ${dates[2]} | ${dates[3]}`,content);
-                msgList.push(embed);
-            }
-            callback(msgList);
-          });
-      });
-}
 
 
-const findPlayer = (playerName, completion) => {
-    
-    var header = {
-        debug: true,
-        worksheetName: c.worksheetP1(),
-        oauth2: {
-          client_id: c.googleClientId(),
-          client_secret: c.googleClientSecret(),
-          refresh_token: c.googleRefreshToken()
-        },
-    }
-    
-    let sprId = c.spreadsheetId();
-    
-    if (sprId === "") {
-        header["spreadsheetName"] = c.spreadSheetName();
-    } else {
-        header["spreadsheetId"] = sprId;
-    }
-    
-    Spreadsheet.load(header, function sheetReady(err, spreadsheet) {
-          spreadsheet.receive({getValues: true},function(err, rows, info) {
-            if(err) throw err;
-            
-            var players = [];
-            var dates = [];
-            
-            for (let row of Object.keys(rows)) {
-                
-                let r = rows[row];
-                
-                if (r["6"] === 'Ø') {
-                    dates.push(r["2"]);
-                    dates.push(r["3"]);
-                    dates.push(r["4"]);
-                    dates.push(r["5"]);
-                    continue;
+
+                if (players.count() < 2){ //header == 1
+                    reject(i18n.get('PlayerNotFound'));
+                    //only header found
                 }
-                
-                if (playerName === r["1"]) {
-                    var entry = {};
-                    entry["name"] = r["1"];
-                
-                    var hasNewlyJoined = r["5"] == "-";
-                    entry["4"] = r["5"];
-                
-                    if (hasNewlyJoined) {
-                        entry["3"] = "-";
-                    } else {
-                        hasNewlyJoined = r["4"] == "-";
-                        entry["3"] = r["4"];
-                    }
-                
-                
-                    if (hasNewlyJoined) {
-                        entry["2"] = "-";
-                    } else {
-                        hasNewlyJoined = r["3"] == "-";
-                        entry["2"] = r["3"];
-                    }
-                
-                    if (hasNewlyJoined) {
-                        entry["1"] = "-";
-                    } else {
-                        hasNewlyJoined = r["2"] == "-";
-                        entry["1"] = r["2"];
-                    }
-                
-                
-                    entry["avg"] = r["6"];
-                
-                    let content = `${entry["name"]}: ${entry["1"]} | ${entry["2"]} | ${entry["3"]} | ${entry["4"]}\n`
-                    let embed = new Discord.RichEmbed();
-                    embed.addField(`Name | ${dates[0]} | ${dates[1]} | ${dates[2]} | ${dates[3]}`,content);
-                    completion(embed);
-                    return;
-                }
-            }
-            
-            completion(null);
-          });
-      });
-}
+
+                return pdfTemplater.generateDocuments(epList.dates, players, epList.options)
+                    .then(function(filePath){
+                        resolve(filePath)
+                    }).catch(reject);
+            });
+        });
+    };
+
+    epList.filterPlayersByName = function(players, playerName){
+        epList.options.markRow = {
+            field: "name",
+            value: playerName
+        };
+        let specificPlayer = epList.players({name:playerName});
+        let gtPlayers = epList.players({week4: {gt: specificPlayer.first().week4}}).order("week4").limit(2);
+        let ltPlayers = epList.players({week4: {lt: specificPlayer.first().week4}}).limit(2);
+
+        let nameBasedSearch = [{
+            name: specificPlayer.first().name
+        }];
+        gtPlayers.each(function(gtP){
+            nameBasedSearch.push({name: gtP.name});
+        });
+        ltPlayers.each(function(ltP){
+            nameBasedSearch.push({name: ltP.name});
+        });
+
+        return epList.players(nameBasedSearch).order("week4 asc");
+    }
+};
+
 
 const player = (playerName, completion) => {
     
@@ -508,6 +450,93 @@ const storePlayer = (playerData,index, completion) => {
     });
 }
 
+
+/**
+ * Prepare content for indexing
+ * @private
+ * @param {Object} content input from server request
+ * @returns map with two keys: header: contains header as array, body: array with player values (array) 
+ * @type Object
+ */
+function mapContent(content) {
+    // {'header','body'}
+    
+    var map = {'header':[],'body':[]};
+    
+    var players = [];
+    
+    
+    for (let row of Object.keys(content)) {
+        
+        let r = content[row];
+
+        var body = [];
+
+        //check whether newly joined
+        var isNewMember = r['5'] == '-';
+
+        // push latest
+        body.push(r['5']);
+
+        for (var i=4;i>=2;i--) {
+            if (isNewMember) {
+                body.push('-');
+            } else {
+                isNewMember = r[`${i}`] == "-";
+                body.push(r[`${i}`]);
+            }
+        }
+
+        //name
+        body.push(r['1']);
+
+        map['body'].push(body.reverse());
+    }
+    return map;
+}
+
+/**
+ * Find data row by given index
+ * @private
+ * @param {Object} data map with sheet content
+ * @param {number} position row index
+ * @returns array for matching position, or null if invalid data or position is invalid 
+ * @type Object
+ */
+function getPlayerByIndex(data,position) {
+    //invalid data
+    if (data == undefined || data == null) {
+        return null;
+    } else {
+        // array bounds exception
+        if (position < 0 || position >= data.body.length) {
+            return null;
+        } else {
+            return data.body[position];
+        }
+    }
+}
+
+
+/**
+ * Find data row by given name
+ * @private
+ * @param {Object} data map with sheet content
+ * @param {string} searching name
+ * @returns array for matching position, or null if invalid data or name 
+ * @type Object
+ */
+function getPlayerByName(data, name) {
+    //invalid data / name
+    if (data == undefined || data == null || name == null || name.length == 0) {
+        return null;
+    } else {
+        return data.body.find(function(element) {
+            return element[0] == name;
+        });
+    }
+}
+
 function containsName(header, name) {
     
     for (let k of Object.keys(header)) {
@@ -520,10 +549,8 @@ function containsName(header, name) {
 
 // export
 module.exports = {
-    
-    showEPList: showItem,
+    EPList: EPList,
     addPlayer: player,
     checkout: checkout,
-    findByName: findPlayer,
     backup: backup
 };
