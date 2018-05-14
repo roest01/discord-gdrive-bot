@@ -4,6 +4,8 @@
 
 //load settings => auto fallback to example for heroku
 var botSettings = {};
+const exampleSettings = require("../config/example_settings.json");
+
 try {
     botSettings = require("../config/settings.json");
 } catch (e) {
@@ -11,7 +13,7 @@ try {
         throw e;
     }
     console.log('settings.json not found. Loading default example_settings.json...');
-    botSettings = require("../config/example_settings.json");
+    botSettings = exampleSettings;
 }
 
 //Bot Token
@@ -96,13 +98,6 @@ if (googleRefreshToken == "") {
     googleRefreshToken = process.env.REFRESH_TOKEN;
 }
 
-// author information
-var creator = botSettings.author;
-if (creator == "") {
-    // Heroku ENV token
-    creator = process.env.AUTHOR;
-}
-
 const getBotToken = () => {
     return botToken;
 }
@@ -157,13 +152,14 @@ const getGoogleRefreshToken = () => {
     return googleRefreshToken;
 }
 
+// author information
 const author = () => {
-    return creator
+    return exampleSettings.author;
 }
 
 const getVersion = () => {
-    return '0.3.0';
-} 
+    return exampleSettings.version;
+}
 
 // export
 module.exports = {
