@@ -79,7 +79,9 @@ const VisualManager = (dates, players, options) => {
         });
 
         players.each(function(player){
-            playersRow.push(visualManager.getSinglePlayerRow(player));
+            if (!!player.name){
+                playersRow.push(visualManager.getSinglePlayerRow(player));
+            }
         });
         return playersRow;
     };

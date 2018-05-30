@@ -9,13 +9,14 @@
   "author": "Truong Vinh Tran",
   "license": "ISC",
   "dependencies": {
+    "child-process-promise": "^2.2.1",
     "discord.js": "^11.3.0",
     "edit-google-spreadsheet": "^0.3.0",
     "http": "0.0.0",
     "loglevel": "^1.6.1",
-    "request": "^2.83.0",
-    "pdfmake": "^0.1.36",
     "pdf-image": "^2.0.0",
+    "pdfmake": "^0.1.36",
+    "request": "^2.83.0",
     "taffy": "^2.6.2"
   }
 }

@@ -109,6 +109,9 @@ bot.on("message", async message => {
         message.channel.startTyping();
         let epList = new sheet.EPList();
         epList.generatePNG().then(function(filePaths){
+            message.delete().catch(function(){
+                console.log("no permission to delete " + message );
+            });
             message.channel.send({
                 files: [
                     filePaths.pngPath
@@ -116,7 +119,7 @@ bot.on("message", async message => {
             });
             message.channel.stopTyping();
         }).catch(function(e){
-            message.channel.send(e);
+            message.channel.send(e.message);
             message.channel.stopTyping();
             console.log(e);
         });
@@ -183,7 +186,7 @@ bot.on("message", async message => {
                 });
                 message.channel.stopTyping();
             }).catch(function(e){
-                message.channel.send(e);
+                message.channel.send(e.message);
                 message.channel.stopTyping();
                 console.log(e);
             });
