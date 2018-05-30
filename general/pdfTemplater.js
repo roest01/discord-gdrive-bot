@@ -102,8 +102,8 @@ const VisualManager = (dates, players, options) => {
         return {
             compress: false,
             pageSize: {
-                width: 2480,
-                height: 118 * (players.count() + 2) //+ header
+                width: 1200,
+                height: 74 * (players.count() + 1) //+ header
             },
             pageMargins: 40,
             content: [
@@ -146,7 +146,7 @@ const VisualManager = (dates, players, options) => {
                     margin: [20, 20, 20, 20]
                 },
                 tableBody: {
-                    fontSize: 65,
+                    fontSize: 26,
                     color: 'black',
                     margin: [20, 20, 20, 20]
                 }
