@@ -126,8 +126,6 @@ bot.on("message", async message => {
         return;
     }
 
-
-
     // list of guild members
     if (strH.hasCmds(command, [`${PREFIX}list`, `${PREFIX}l`])) {
         const callback = function(response) {
@@ -142,6 +140,18 @@ bot.on("message", async message => {
 
         message.channel.startTyping();
         sheet.members(callback);
+        return;
+    }
+
+    // list of smurfs
+    if (strH.hasCmds(command, [`${PREFIX}smurf`,`${PREFIX}smurfs`])) {
+        const callback = function(response) {
+            message.channel.send(response);
+            message.channel.stopTyping();
+        };
+
+        message.channel.startTyping();
+        sheet.smurfs(callback);
         return;
     }
 

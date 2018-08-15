@@ -766,6 +766,49 @@ const members = (completion) => {
     getGuildMembers(callback);
 }
 
+
+// method for showing list of all recorded smurfs
+const smurfs = (completion) => {
+    
+    //get first page
+    const header = getRequestHeaderForSheet(c.worksheetP6());
+    
+    Spreadsheet.load(header, function sheetReady(err, spreadsheet) {
+        spreadsheet.receive({getValues: true},function(err, rows, info) {
+            if(err) throw err;
+
+            let embed = new Discord.RichEmbed();
+            embed.setTitle(`${i18n.get('InfoSmurfsList')}`);
+
+            var playerList = [];
+            // prepare players
+            for (let row of Object.keys(rows)) {
+
+                let r = rows[row];
+
+                //skip first row
+                if (r['1'] != undefined && row != 1) {
+
+                    var smurfList = "";
+
+                    for (var c of Object.values(r)) {
+                        if (c != r['1']) {
+                            if (smurfList == "") {
+                                smurfList = c;
+                            } else {
+                                smurfList = smurfList + ", " + c;
+                            }
+                        }
+                    }
+
+                    embed.addField(r['1'],smurfList);
+                }
+            }
+            completion(embed);
+        });
+    });
+}
+
 // export
 module.exports = {
     EPList: EPList,
@@ -775,4 +818,5 @@ module.exports = {
     backup: backup,
     restore: restore,
     members: members,
+    smurfs: smurfs,
 };
