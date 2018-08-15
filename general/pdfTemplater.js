@@ -103,7 +103,7 @@ const VisualManager = (dates, players, options) => {
             compress: false,
             pageSize: {
                 width: 1200,
-                height: 74 * (players.count() + 1) //+ header
+                height: 95 * (players.count() + 1) //+ header
             },
             pageMargins: 40,
             content: [

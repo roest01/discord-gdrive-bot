@@ -92,6 +92,12 @@ const EPList = function() {
                         week4: currentRow["5"]
                     });
                 });
+
+                let fs = require('fs');
+                fs.writeFile('/usr/local/share/web/js/members.json', JSON.stringify(players), 'utf8', function(e){
+                    console.log("/usr/local/share/web/js/members.json file written", e);
+                });
+
                 epList.players = new Taffy(players);
                 epList.dates = dates;
                 resolve();
