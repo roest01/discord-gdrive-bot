@@ -80,14 +80,14 @@ if (worksheetP4 == "") {
 }
 
 // worksheet Page 5
-var worksheetP5 = botSettings.googleSheet.worksheetP5;
+var worksheetP5 = exampleSettings.googleSheet.worksheetP5;
 if (worksheetP5 == "") {
     // Heroku ENV token
     worksheetP5 = process.env.WORKSHEET_P5;
 }
 
 // worksheet Page 6
-var worksheetP6 = botSettings.googleSheet.worksheetP6;
+var worksheetP6 = exampleSettings.googleSheet.worksheetP6;
 if (worksheetP6 == "") {
     // Heroku ENV token
     worksheetP6 = process.env.WORKSHEET_P6;
