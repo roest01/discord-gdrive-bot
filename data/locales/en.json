@@ -1,6 +1,7 @@
 {
   "AboutBot":"Details about the bot",
   "DateFormattingCode":"en-US",
+  "DisplayActiveMembers":"Display active guild members",
   "FollowingCommands":"Following commands are available:",
   "InfoAddingPlayer":"Adding new player",
   "InfoBackupPlayer":"Backup an existing player",

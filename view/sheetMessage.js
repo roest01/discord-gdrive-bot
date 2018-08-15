@@ -286,36 +286,17 @@ const checkout = (user, message, completion) => {
         });
     });
 }
-
+// backup target player
 const backup = (user, completion) => {
-    
-    
-    var header = {
-        debug: true,
-        worksheetName: c.worksheetP2(),
-        oauth2: {
-          client_id: c.googleClientId(),
-          client_secret: c.googleClientSecret(),
-          refresh_token: c.googleRefreshToken()
-        },
-    }
-    
-    let sprId = c.spreadsheetId();
-    
-    if (sprId === "") {
-        header["spreadsheetName"] = c.spreadSheetName();
-    } else {
-        header["spreadsheetId"] = sprId;
-    }
+
+    let header = getRequestHeaderForSheet(c.worksheetP2());
     
     Spreadsheet.load(header, function sheetReady(err, spreadsheet) {
-          spreadsheet.receive({getValues: true},function(err, rows, info) {
+        spreadsheet.receive({getValues: true},function(err, rows, info) {
             if(err) throw err;
             
             var index = null;
-            
             let nameList = rows["1"];
-            
             
             for (let k of Object.keys(nameList)) {
                 if (nameList[k] === user) {
@@ -337,10 +318,6 @@ const backup = (user, completion) => {
                     
                     //ignore header row
                     if (k != "1") {
-                        
-                        //row position
-                        let rowPos = k;
-                        
                         let singleRow = rows[k];
                         
                         if (singleRow.hasOwnProperty(index)) {
@@ -356,45 +333,28 @@ const backup = (user, completion) => {
                 var delMap = {};
                 
                 for (let k of Object.keys(updateMap)) {
-                
                     var rowEntry = {};
                     rowEntry[index] = "";
-                
                     delMap[k] = rowEntry;
                 }
             
                 //remove entry
                 spreadsheet.add(delMap);
                 spreadsheet.send(function(err) {
-                  if(err) throw err;
+                    if(err) throw err;
                   
-                  //back up player in archieve
-                  storePlayer(updateMap,index, completion);
+                    //back up player in archieve
+                    storePlayer(updateMap,index, completion);
                 });
-                
             }
           });
       });
 }
 
+// copy deleted player into archieve
 const storePlayer = (playerData,index, completion) => {
-    var header = {
-        debug: true,
-        worksheetName: c.worksheetP3(),
-        oauth2: {
-          client_id: c.googleClientId(),
-          client_secret: c.googleClientSecret(),
-          refresh_token: c.googleRefreshToken()
-        },
-    }
-    
-    let sprId = c.spreadsheetId();
-    
-    if (sprId === "") {
-        header["spreadsheetName"] = c.spreadSheetName();
-    } else {
-        header["spreadsheetId"] = sprId;
-    }
+
+    let header = getRequestHeaderForSheet(c.worksheetP3());
     
     Spreadsheet.load(header, function sheetReady(err, spreadsheet) {
         // check number of available rows
@@ -547,10 +507,157 @@ function containsName(header, name) {
     return false;
 }
 
+
+
+const findPlayer = (playerName, completion) => {
+    
+    let header = getRequestHeaderForSheet(c.worksheetP1());
+    
+    Spreadsheet.load(header, function sheetReady(err, spreadsheet) {
+          spreadsheet.receive({getValues: true},function(err, rows, info) {
+            if(err) throw err;
+            
+            var players = [];
+            var dates = [];
+            
+            for (let row of Object.keys(rows)) {
+                
+                let r = rows[row];
+                
+                if (r["6"] === 'Ø') {
+                    dates.push(r["2"]);
+                    dates.push(r["3"]);
+                    dates.push(r["4"]);
+                    dates.push(r["5"]);
+                    continue;
+                }
+                
+                if (playerName === r["1"]) {
+                    var entry = {};
+                    entry["name"] = r["1"];
+                
+                    var hasNewlyJoined = r["5"] == "-";
+                    entry["4"] = r["5"];
+                
+                    if (hasNewlyJoined) {
+                        entry["3"] = "-";
+                    } else {
+                        hasNewlyJoined = r["4"] == "-";
+                        entry["3"] = r["4"];
+                    }
+                
+                
+                    if (hasNewlyJoined) {
+                        entry["2"] = "-";
+                    } else {
+                        hasNewlyJoined = r["3"] == "-";
+                        entry["2"] = r["3"];
+                    }
+                
+                    if (hasNewlyJoined) {
+                        entry["1"] = "-";
+                    } else {
+                        hasNewlyJoined = r["2"] == "-";
+                        entry["1"] = r["2"];
+                    }
+                
+                
+                    entry["avg"] = r["6"];
+                
+                    let content = `${entry["name"]}: ${entry["1"]} | ${entry["2"]} | ${entry["3"]} | ${entry["4"]}\n`
+                    let embed = new Discord.RichEmbed();
+                    embed.addField(`Name | ${dates[0]} | ${dates[1]} | ${dates[2]} | ${dates[3]}`,content);
+                    completion(embed);
+                    return;
+                }
+            }
+            
+            completion(null);
+          });
+      });
+}
+
+/**
+ * Prepare header for server request
+ * @private
+ * @param {sheetName} name of the target loading sheet page
+ * @returns request header for google sheet
+ * @type Object
+ */
+function getRequestHeaderForSheet(sheetName) {
+
+    var header = {
+        debug: true,
+        worksheetName: sheetName,
+        oauth2: {
+          client_id: c.googleClientId(),
+          client_secret: c.googleClientSecret(),
+          refresh_token: c.googleRefreshToken()
+        },
+    }
+    
+    let sprId = c.spreadsheetId();
+    
+    if (sprId === "") {
+        header["spreadsheetName"] = c.spreadSheetName();
+    } else {
+        header["spreadsheetId"] = sprId;
+    }
+    return header;
+}
+
+// method for showing list of all active members
+const members = (completion) => {
+    
+    //get first page
+    const header = getRequestHeaderForSheet(c.worksheetP1());
+    
+    Spreadsheet.load(header, function sheetReady(err, spreadsheet) {
+        spreadsheet.receive({getValues: true},function(err, rows, info) {
+            if(err) throw err;
+            
+            // player names
+            var playerNames = "";
+
+            let items = Object.keys(rows);
+
+            var playerList = [];
+            // prepare players
+            for (let row of Object.keys(rows)) {
+                let r = rows[row];
+                if (r['1'] != undefined && row != 1) {
+                    playerList.push(r['1']);
+                }
+
+            }
+
+            if (items.length == 0) {
+                completion(null);
+                return;
+            } else {
+                playerList.sort(function (a, b) {
+                    return a.toLowerCase().localeCompare(b.toLowerCase());
+                });
+
+                for (let name of playerList) {
+                    playerNames = playerNames + name + "\n";
+                }
+            }
+
+            let embed = new Discord.RichEmbed();
+            embed.setTitle(`${i18n.get('DisplayActiveMembers')} [${playerList.length}]`);
+            embed.addField(`Name`,playerNames);
+            completion(embed);
+        });
+    });
+}
+
 // export
 module.exports = {
     EPList: EPList,
     addPlayer: player,
     checkout: checkout,
-    backup: backup
+    findByName: findPlayer,
+    backup: backup,
+    members: members,
 };

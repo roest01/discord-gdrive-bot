@@ -126,6 +126,25 @@ bot.on("message", async message => {
         return;
     }
 
+
+
+    // list of guild members
+    if (strH.hasCmds(command, [`${PREFIX}list`, `${PREFIX}l`])) {
+        const callback = function(response) {
+                
+            if (response == null) {
+                message.channel.send(`${i18n.get('PlayerNotFound')}`);
+            } else {
+                message.channel.send(response);
+            }
+            message.channel.stopTyping();
+        };
+
+        message.channel.startTyping();
+        sheet.members(callback);
+        return;
+    }
+
     if (messageArray.length > 1) {
         
         if (hasRole) {
@@ -190,6 +209,29 @@ bot.on("message", async message => {
                 message.channel.stopTyping();
                 console.log(e);
             });
+            return;
+        }
+
+        // restore archieved player
+        if (strH.hasCmd(command,`${PREFIX}restore`)) {
+            return;
+        }
+
+        // old find method
+        if (strH.hasCmd(command,`${PREFIX}search`)) {
+            const callback = function(response) {
+                
+                if (response == null) {
+                    message.channel.send(`${i18n.get('PlayerNotFound')}`);
+                } else {
+                    message.channel.send(response);
+                }
+                message.channel.stopTyping();
+            };
+
+            message.channel.startTyping();
+            sheet.findByName(messageArray[1], callback);
+            return;
         }
     }
 });
