@@ -709,7 +709,7 @@ function getRequestHeaderForSheet(sheetName) {
 function getGuildMembers(completion) {
     
     //get first page
-    const header = getRequestHeaderForSheet(c.worksheetP1());
+    const header = getRequestHeaderForSheet(c.worksheetP5());
     
     Spreadsheet.load(header, function sheetReady(err, spreadsheet) {
         spreadsheet.receive({getValues: true},function(err, rows, info) {

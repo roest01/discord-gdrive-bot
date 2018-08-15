@@ -72,11 +72,25 @@ if (worksheetP3 == "") {
     worksheetP3 = process.env.WORKSHEET_P3;
 }
 
-// worksheet Page 1
+// worksheet Page 4
 var worksheetP4 = botSettings.googleSheet.worksheetP4;
 if (worksheetP4 == "") {
     // Heroku ENV token
     worksheetP4 = process.env.WORKSHEET_P4;
+}
+
+// worksheet Page 5
+var worksheetP5 = botSettings.googleSheet.worksheetP5;
+if (worksheetP5 == "") {
+    // Heroku ENV token
+    worksheetP5 = process.env.WORKSHEET_P5;
+}
+
+// worksheet Page 6
+var worksheetP6 = botSettings.googleSheet.worksheetP6;
+if (worksheetP6 == "") {
+    // Heroku ENV token
+    worksheetP6 = process.env.WORKSHEET_P6;
 }
 
 
@@ -140,6 +154,14 @@ const getworksheetP4 = () => {
     return worksheetP4;
 }
 
+const getworksheetP5 = () => {
+    return worksheetP5;
+}
+
+const getworksheetP6 = () => {
+    return worksheetP6;
+}
+
 const getGoogleClientId = () => {
     return googleClientId;
 }
@@ -173,6 +195,8 @@ module.exports = {
     worksheetP2: getworksheetP2,
     worksheetP3: getworksheetP3,
     worksheetP4: getworksheetP4,
+    worksheetP5: getworksheetP5,
+    worksheetP6: getworksheetP6,
     googleClientId: getGoogleClientId,
     googleClientSecret: getGoogleClientSecret,
     googleRefreshToken: getGoogleRefreshToken,

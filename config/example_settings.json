@@ -9,6 +9,8 @@
       "worksheetP2":"Rohdaten",
       "worksheetP3":"Archiv Rohdaten",
       "worksheetP4":"Abmeldung",
+      "worksheetP5":"Tagesbericht",
+      "worksheetP6":"Smurf",
       "client_id":"",
       "client_secret":"",
       "refresh_token":""
