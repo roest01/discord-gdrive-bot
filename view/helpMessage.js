@@ -27,6 +27,8 @@ const helpMessage = (PREFIX, author, hasRole) => {
     if (hasRole) {
         embed.addField(`${PREFIX}add NAME`,`${i18n.get('InfoAddingPlayer')}`);
         embed.addField(`${PREFIX}backup NAME`,`${i18n.get('InfoBackupPlayer')}`);
+        embed.addField(`${PREFIX}restore NAME`,`${i18n.get('InfoRestorePlayer')}`);
+        embed.addField(`${PREFIX}list`,`${i18n.get('InfoMemberList')}`);
     }
     return embed;
 }

@@ -171,7 +171,18 @@ const playerData = (playerName, data, completion) => {
                   completion(`${i18n.get('FailedAddingPlayer')}`);
                   return;
               }
-              
+              let array = Object.keys(firstRow);
+              let firstNameIndex = array[0];
+              let lastNameIndex = array[array.length - 1];
+              var emptySlot = -1;
+
+              for (var colIndex = firstNameIndex; colIndex < lastNameIndex;colIndex++) {
+                if (!firstRow.hasOwnProperty(`${colIndex}`)) {
+                    emptySlot = colIndex;
+                    break;
+                }
+              }
+
               const callback = function(column) {
 
                 if (data == null) {
@@ -202,17 +213,23 @@ const playerData = (playerName, data, completion) => {
                     
                 });
             };
-              
-              const rowItems = Object.keys(firstRow);
-              
-              var last = rowItems[rowItems.length - 1];
-              if (parseInt(last) < metadata.colCount) {
-                  // enough columns for inserting
-                  callback(parseInt(last) + 1);
-              } else {
-                  spreadsheet.metadata({
-                      colCount: metadata.colCount+1
-                      }, function(err, metadata){
+            
+            // free slot available
+            if (emptySlot > 0) {
+                callback(emptySlot);
+                return;
+            }
+
+            const rowItems = Object.keys(firstRow);
+            
+            var last = rowItems[rowItems.length - 1];
+            if (parseInt(last) < metadata.colCount) {
+                // enough columns for inserting
+                callback(parseInt(last) + 1);
+            } else {
+                spreadsheet.metadata({
+                    colCount: metadata.colCount+1
+                    }, function(err, metadata){
                         if(err) throw err;
                         callback(parseInt(last) + 1);
 

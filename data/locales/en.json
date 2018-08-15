@@ -7,6 +7,8 @@
   "InfoBackupPlayer":"Backup an existing player",
   "InfoFindPlayer":"Displaying the achieving scores for recent weeks",
   "InfoGuildMemberEPList":"Display all guild members with their score",
+  "InfoMemberList":"List all guild members",
+  "InfoRestorePlayer":"Restore existing player",
   "InfoCheckoutPlayer":"Checkout with reason",
   "SuccessfulAddingPlayer":"Successful adding player",
   "SuccessfulBackupPlayer":"Successful backup player",

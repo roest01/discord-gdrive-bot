@@ -162,7 +162,7 @@ bot.on("message", async message => {
             }
             
             //store player from raw data
-            if (strH.hasCmd(command,`${PREFIX}backup`)) {
+            if (strH.hasCmds(command,[`${PREFIX}backup`, `${PREFIX}b`])) {
                 const callback = function(response) {
                 
                     if (response == null) {
