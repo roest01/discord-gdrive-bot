@@ -10,8 +10,10 @@
   "InfoCheckoutPlayer":"Abmeldung mit Grund",
   "SuccessfulAddingPlayer":"Spieler wurde erfolgreich hinzugefügt",
   "SuccessfulBackupPlayer":"Spieler wurde erfolgreich archiviert",
+  "SuccessfulRestorePlayer":"Spieler wurde erfolgreich wiederhergestellt",
   "SuccessfulCheckoutMessage":"Abwesenheit wurde erfolgreich vermerkt.",
   "FailedAddingPlayer":"Spieler existiert bereits in der Liste",
+  "FailedRestoringPlayerGuildFull":"Spieler kann nicht wiederhergestellt werden. Gilde bereits voll",
   "PlayerNotFound":"Spielername nicht gefunden",
   "EPGeneratedAt":"EP Bericht generiert am"
 }

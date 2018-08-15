@@ -10,7 +10,9 @@
   "InfoCheckoutPlayer":"Checkout with reason",
   "SuccessfulAddingPlayer":"Successful adding player",
   "SuccessfulBackupPlayer":"Successful backup player",
+  "SuccessfulRestorePlayer":"Successful restore player",
   "SuccessfulCheckoutMessage":"Successful notifying lead regarding checkout.",
   "FailedAddingPlayer":"Player already exist",
+  "FailedRestoringPlayerGuildFull":"Player can't be restored. Guild limit reached",
   "PlayerNotFound":"Could not found player with given name"
 }

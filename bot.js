@@ -213,7 +213,15 @@ bot.on("message", async message => {
         }
 
         // restore archieved player
-        if (strH.hasCmd(command,`${PREFIX}restore`)) {
+        if (strH.hasCmds(command,[`${PREFIX}restore`, `${PREFIX}r`])) {
+            
+            const callback = function(response) {
+                message.channel.send(response);
+                message.channel.stopTyping();
+            };
+
+            message.channel.startTyping();
+            sheet.restore(messageArray[1], callback);
             return;
         }
 

@@ -148,26 +148,13 @@ const EPList = function() {
     }
 };
 
-
 const player = (playerName, completion) => {
+    playerData(playerName, null, completion);
+}
+
+const playerData = (playerName, data, completion) => {
     
-    var header = {
-        debug: true,
-        worksheetName: c.worksheetP2(),
-        oauth2: {
-          client_id: c.googleClientId(),
-          client_secret: c.googleClientSecret(),
-          refresh_token: c.googleRefreshToken()
-        },
-    }
-    
-    let sprId = c.spreadsheetId();
-    
-    if (sprId === "") {
-        header["spreadsheetName"] = c.spreadSheetName();
-    } else {
-        header["spreadsheetId"] = sprId;
-    }
+    let header = getRequestHeaderForSheet(c.worksheetP2());
     
     Spreadsheet.load(header, function sheetReady(err, spreadsheet) {
         // check number of available rows
@@ -187,18 +174,34 @@ const player = (playerName, completion) => {
               
               const callback = function(column) {
 
-                  var rowEntry = {};
+                if (data == null) {
+                    var rowEntry = {};
                   
-                  rowEntry[`${column}`] = playerName;
-                  
-                  spreadsheet.add({1:rowEntry});
-                  spreadsheet.send(function(err) {
+                    rowEntry[`${column}`] = playerName;
+                    spreadsheet.add({1:rowEntry});
+                } else {
+                    var editedData = {};
+
+                    for (let row of Object.keys(data)) {
+                        let value = data[row];
+                        for (let u of Object.values(data[row])) {
+                            var rowEntry = {};
+                            rowEntry[`${column}`] = u;
+                            editedData[`${row}`] = rowEntry;
+                        }
+
+                    }
+
+                    spreadsheet.add(editedData);
+                }
+                spreadsheet.send(function(err) {
                     if(err) throw err;
+                    if (data == null) {
+                        completion(`${i18n.get('SuccessfulAddingPlayer')}`);
+                    }
                     
-                    completion(`${i18n.get('SuccessfulAddingPlayer')}`);
-                    
-                  });
-              };
+                });
+            };
               
               const rowItems = Object.keys(firstRow);
               
@@ -410,6 +413,82 @@ const storePlayer = (playerData,index, completion) => {
     });
 }
 
+// restore an existing player from backup sheet
+const restore = (user, completion) => {
+
+    //check whether enough space is available (restriction 50 members)
+    const callback = function(players) {
+        if (players.length < 50) {
+            let header = getRequestHeaderForSheet(c.worksheetP3());
+            
+            Spreadsheet.load(header, function sheetReady(err, spreadsheet) {
+                spreadsheet.receive({getValues: true},function(err, rows, info) {
+                    if(err) throw err;
+
+                    var index = null;
+                    let nameList = rows["1"];
+                    
+                    for (let k of Object.keys(nameList)) {
+                        if (nameList[k] === user) {
+                            index = k;
+                            break;
+                        }
+                    }
+                    
+                    if (index == null) {
+                        completion(`${i18n.get('PlayerNotFound')}`);
+                        return;
+                    } else {
+
+                        var n = {};
+                        n[index] = user;
+                        var updateMap = {"1":n};
+                        
+                        for (let k of Object.keys(rows)) {
+                            
+                            //ignore header row
+                            if (k != "1") {
+                                let singleRow = rows[k];
+                                
+                                if (singleRow.hasOwnProperty(index)) {
+                                    var rowValue = {};
+                                    rowValue[index] = singleRow[index];
+                                    updateMap[k] = rowValue;
+                                } else {
+                                    continue;
+                                }
+                            }
+                        }
+                        
+                        var delMap = {};
+                        
+                        for (let k of Object.keys(updateMap)) {
+                            var rowEntry = {};
+                            rowEntry[index] = "";
+                            delMap[k] = rowEntry;
+                        }
+                    
+                        //remove entry
+                        spreadsheet.add(delMap);
+                        spreadsheet.send(function(err) {
+                            if(err) throw err;
+                            
+                            //restore player in overview
+                            playerData(user, updateMap, completion);
+                        });
+
+                        completion(`${i18n.get('SuccessfulRestorePlayer')}`);
+
+                    }
+                });
+            });
+        } else {
+            // guild is already full
+            completion(`${i18n.get('FailedRestoringPlayerGuildFull')}`);
+        }
+    };
+    getGuildMembers(callback);
+}
 
 /**
  * Prepare content for indexing
@@ -506,8 +585,6 @@ function containsName(header, name) {
     }
     return false;
 }
-
-
 
 const findPlayer = (playerName, completion) => {
     
@@ -606,8 +683,7 @@ function getRequestHeaderForSheet(sheetName) {
     return header;
 }
 
-// method for showing list of all active members
-const members = (completion) => {
+function getGuildMembers(completion) {
     
     //get first page
     const header = getRequestHeaderForSheet(c.worksheetP1());
@@ -615,41 +691,56 @@ const members = (completion) => {
     Spreadsheet.load(header, function sheetReady(err, spreadsheet) {
         spreadsheet.receive({getValues: true},function(err, rows, info) {
             if(err) throw err;
-            
-            // player names
-            var playerNames = "";
-
-            let items = Object.keys(rows);
 
             var playerList = [];
             // prepare players
             for (let row of Object.keys(rows)) {
                 let r = rows[row];
                 if (r['1'] != undefined && row != 1) {
+                    // check for archieved players
+                    if (r['2'] === '#N/A') {
+                        continue;
+                    }
                     playerList.push(r['1']);
                 }
-
             }
 
-            if (items.length == 0) {
+            if (playerList.length == 0) {
                 completion(null);
                 return;
             } else {
                 playerList.sort(function (a, b) {
                     return a.toLowerCase().localeCompare(b.toLowerCase());
                 });
+            }
+            completion(playerList);
+        });
+    });
+}
 
-                for (let name of playerList) {
-                    playerNames = playerNames + name + "\n";
-                }
+// method for showing list of all active members
+const members = (completion) => {
+    const callback = function(players) {
+        
+        if (players.length == 0) {
+            completion(null);
+        } else {
+
+            // player names
+            var playerNames = "";
+
+            for (let name of players) {
+                playerNames = playerNames + name + "\n";
             }
 
             let embed = new Discord.RichEmbed();
-            embed.setTitle(`${i18n.get('DisplayActiveMembers')} [${playerList.length}]`);
+            embed.setTitle(`${i18n.get('DisplayActiveMembers')} [${players.length}]`);
             embed.addField(`Name`,playerNames);
+
             completion(embed);
-        });
-    });
+        }
+    };
+    getGuildMembers(callback);
 }
 
 // export
@@ -659,5 +750,6 @@ module.exports = {
     checkout: checkout,
     findByName: findPlayer,
     backup: backup,
+    restore: restore,
     members: members,
 };
