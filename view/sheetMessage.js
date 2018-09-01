@@ -94,8 +94,8 @@ const EPList = function() {
                 });
 
                 let fs = require('fs');
-                fs.writeFile('/usr/local/share/web/js/members.json', JSON.stringify(players), 'utf8', function(e){
-                    console.log("/usr/local/share/web/js/members.json file written", e);
+                fs.writeFile('resources/members.json', JSON.stringify(players), 'utf8', function(e){
+                    console.log("resources/members.json file written", e);
                 });
 
                 epList.players = new Taffy(players);
@@ -807,7 +807,7 @@ const smurfs = (completion) => {
             completion(embed);
         });
     });
-}
+};
 
 // export
 module.exports = {
