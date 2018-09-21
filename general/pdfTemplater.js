@@ -97,13 +97,19 @@ const VisualManager = (dates, players, options) => {
             ];
     };
 
+    const CELL_MARGIN = 10;
+    const CELL_FONT_SIZE = 26;
+    const SIZE = players.count() + 1;
+
+    const PAGE_SIZE = (2 * CELL_MARGIN + CELL_FONT_SIZE + 5) * SIZE + 80;
+
     this._createTemplate = function(dates, players){
         let visualManager = this;
         return {
             compress: false,
             pageSize: {
                 width: 1200,
-                height: 95 * (players.count() + 1) //+ header
+                height: PAGE_SIZE //+ header
             },
             pageMargins: 40,
             content: [
@@ -140,15 +146,16 @@ const VisualManager = (dates, players, options) => {
             styles: {
                 tableHeader: {
                     bold: true,
+                    fontSize: CELL_FONT_SIZE,
                     fillColor: "#5a97f2",
                     color: "#ffffff",
                     alignment: "center",
-                    margin: [20, 20, 20, 20]
+                    margin: [CELL_MARGIN, CELL_MARGIN, CELL_MARGIN, CELL_MARGIN]
                 },
                 tableBody: {
-                    fontSize: 26,
+                    fontSize: CELL_FONT_SIZE,
                     color: 'black',
-                    margin: [20, 20, 20, 20]
+                    margin: [CELL_MARGIN, CELL_MARGIN, CELL_MARGIN, CELL_MARGIN]
                 }
             },
             defaultStyle: {

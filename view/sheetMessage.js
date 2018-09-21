@@ -13,6 +13,8 @@ const formatter = require('../general/contentFormatter');
 const pdfTemplater = require('../general/pdfTemplater');
 const Spreadsheet = require('edit-google-spreadsheet');
 
+const log =require('loglevel');
+
 
 // numbers of entries for each message
 const BLOCK_SIZE = 20;
@@ -94,8 +96,11 @@ const EPList = function() {
                 });
 
                 let fs = require('fs');
-                fs.writeFile('resources/members.json', JSON.stringify(players), 'utf8', function(e){
-                    console.log("resources/members.json file written", e);
+
+                let memberFilePath = 'resources/members.json';
+
+                fs.writeFile(memberFilePath, JSON.stringify(players), 'utf8', function(e){
+                    log.debug(memberFilePath + " file written", e);
                 });
 
                 epList.players = new Taffy(players);
