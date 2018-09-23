@@ -9,10 +9,13 @@ const c = require("./general/constLoader");
 const i18n = require('./general/langSupport');
 const fm = require('./general/contentFormatter');
 const strH = require('./general/stringHelper');
+const access = require('./general/accessManager');
 
 // VIEW
 const helpMsg = require('./view/helpMessage');
 const sheet = require('./view/sheetMessage');
+
+const tagger = require('./general/tagManager');
 
 //logger
 var log =require('loglevel');
@@ -35,6 +38,9 @@ bot.on("ready", async() => {
         let link = await bot.generateInvite(["ADMINISTRATOR"]);
         log.info(link);
         
+        // prepare access limits
+        access.setLimits(c.restriction());
+
         // heroku hack
         if (typeof process.env.HOST != 'undefined') {
             // Heroku ENV token
@@ -58,15 +64,13 @@ bot.on("message", async message => {
         return;
     }
     
-    //prevent direct message
+    //prevent checking direct message
     if (message.channel.type === "dm"){ 
         return;
     }
 
     //ignore commands without prefix
     if (!message.content.startsWith(PREFIX)) return;
-    
-    //only channel message
     
     //prevent any actions, if bot cannot write
     if (message.member != null) {
@@ -78,29 +82,13 @@ bot.on("message", async message => {
     let messageArray = message.content.split(" ");
     let command = messageArray[0];
 
-    // user has role
-    var hasRole = false;
-
-    for (var reqRole of c.restriction()) {
-        if (message.member.roles.find("name", reqRole)) {
-            hasRole = true;
-            break;
-        }
-    }
+    // user has admin rights
+    const hasRole = access.hasRight(message.member);
     
     //HELP
     if (strH.hasCmd(command,`${PREFIX}help`)) {
         let embed = helpMsg.getChannelHelp(PREFIX,message.author.username, hasRole);
         message.channel.send(embed);
-        return;
-    }
-    
-    // about
-    if (strH.hasCmds(command,[`${PREFIX}about`])) {
-
-        var d = new RichEmbed().setAuthor(message.author.username);
-        const version = c.version();
-        message.channel.send(d.addField(`${i18n.get('AboutBot')} [${version}]`, `Creator: ${c.author()}`));
         return;
     }
     
@@ -110,7 +98,7 @@ bot.on("message", async message => {
         let epList = new sheet.EPList();
         epList.generatePNG().then(function(filePaths){
             message.delete().catch(function(){
-                console.log("no permission to delete " + message );
+                log.debug("no permission to delete " + message );
             });
             message.channel.send({
                 files: [
@@ -121,7 +109,7 @@ bot.on("message", async message => {
         }).catch(function(e){
             message.channel.send(e.message);
             message.channel.stopTyping();
-            console.log(e);
+            log.error(e);
         });
         return;
     }
@@ -160,14 +148,20 @@ bot.on("message", async message => {
         if (hasRole) {
         
             //add player to raw data index
-            if (strH.hasCmd(command,`${PREFIX}add`)) {
-                const callback = function(response) {
+            if (strH.hasCmds(command,[`${PREFIX}add`,`${PREFIX}a`])) {
+
+                const callback = function(response, finished) {
                     message.channel.send(response);
-                    message.channel.stopTyping();
+                    if (finished) {
+                        message.channel.stopTyping();
+                    }
                 };
 
                 message.channel.startTyping();
-                sheet.addPlayer(messageArray[1], callback);
+
+                const arg = messageArray.slice(1, messageArray.length);
+
+                sheet.addPlayers(arg, callback);
                 return
             }
             
@@ -217,7 +211,7 @@ bot.on("message", async message => {
             }).catch(function(e){
                 message.channel.send(e.message);
                 message.channel.stopTyping();
-                console.log(e);
+                log.error(e);
             });
             return;
         }
@@ -234,6 +228,20 @@ bot.on("message", async message => {
             sheet.restore(messageArray[1], callback);
             return;
         }
+
+        // rename an active guild player
+        if (strH.hasCmds(command,[`${PREFIX}rename`])) {
+            
+            const callback = function(response) {
+                message.channel.send(response);
+                message.channel.stopTyping();
+            };
+
+            message.channel.startTyping();
+            sheet.renamePlayer(messageArray[1], messageArray[2], callback);
+            return;
+        }
+
 
         // old find method
         if (strH.hasCmd(command,`${PREFIX}search`)) {
@@ -252,8 +260,44 @@ bot.on("message", async message => {
             return;
         }
     }
-});
+    if (messageArray.length == 3) {
+        
+        if (hasRole) {
+            if (strH.hasCmd(command,`${PREFIX}tag`)) {
+                const callback = function(response) {
+                    
+                    if (response == null) {
+                        message.channel.send(`${i18n.get('PlayerNotFound')}`);
+                    } else {
+                        message.channel.send(response);
+                    }
+                    message.channel.stopTyping();
+                };
+    
+                message.channel.startTyping();
+                tagger.addTag(messageArray[1],messageArray[2],message,callback);
+                return;
+            }
 
+            if (strH.hasCmds(command,[`${PREFIX}del`,`${PREFIX}delete`,`${PREFIX}remove`,`${PREFIX}rm`])) {
+                const callback = function(response) {
+                    
+                    if (response == null) {
+                        message.channel.send(`${i18n.get('PlayerNotFound')}`);
+                    } else {
+                        message.channel.send(response);
+                    }
+                    message.channel.stopTyping();
+                };
+    
+                message.channel.startTyping();
+                tagger.removeTag(messageArray[1],messageArray[2],message,callback);
+                return;
+            }
+
+        }
+    }
+});
 
 // login bot into discord
 if (!(c.botToken() == null || c.botToken().length == 0)) {

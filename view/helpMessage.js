@@ -5,6 +5,7 @@
 //import
 const Discord = require("discord.js");
 const i18n = require('../general/langSupport');
+const constant = require("../general/constLoader");
 
 /**
  * Sending general informations about available commands within channel
@@ -19,7 +20,6 @@ const helpMessage = (PREFIX, author, hasRole) => {
     let embed = new Discord.RichEmbed()
         .setAuthor(`${author}`)
         .setDescription(`${i18n.get('FollowingCommands')}`)
-        .addField(`${PREFIX}about`, `${i18n.get('AboutBot')}`)
         .addField(`${PREFIX}ep`, `${i18n.get('InfoGuildMemberEPList')}`)
         .addField(`${PREFIX}find NAME`, `${i18n.get('InfoFindPlayer')}`)
         .addField(`${PREFIX}afk [TEXT]`, `${i18n.get('InfoCheckoutPlayer')}`);
@@ -30,6 +30,8 @@ const helpMessage = (PREFIX, author, hasRole) => {
         embed.addField(`${PREFIX}restore NAME`,`${i18n.get('InfoRestorePlayer')}`);
         embed.addField(`${PREFIX}list`,`${i18n.get('InfoMemberList')}`);
     }
+
+    embed.setFooter(`${i18n.get('Version')}: ${constant.version()} - ${constant.author()}`);
     return embed;
 }
 

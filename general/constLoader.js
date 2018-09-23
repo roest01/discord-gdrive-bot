@@ -4,7 +4,7 @@
 
 //load settings => auto fallback to example for heroku
 var botSettings = {};
-const exampleSettings = require("../config/example_settings.json");
+const exampleSettings = require("../template/example_settings.json");
 
 try {
     botSettings = require("../config/settings.json");

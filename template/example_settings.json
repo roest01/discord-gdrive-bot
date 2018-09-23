@@ -16,6 +16,10 @@
       "refresh_token":""
   },
   "restricted":["Leader","Moderator"],
+  "tagging": {
+      "tag":"VIP",
+      "searchChannel":"public"
+  },
   "author":"C4CW, roest",
-  "version":"0.3.1"
+  "version":"0.4.0"
 }

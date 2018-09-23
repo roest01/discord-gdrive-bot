@@ -163,8 +163,122 @@ const player = (playerName, completion) => {
     playerData(playerName, null, completion);
 }
 
+const players = (list, completion) => {
+
+    const callback = function(response, finished) {
+        completion(response, null, false);
+        const slicedList = list.slice(1,list.length);
+        players(slicedList, completion);
+    }
+
+    if (list.length > 1) {
+        playerData(list[0], null, callback); 
+    } else {
+        if (list.length == 0) {
+            playerData(null, null, completion);
+        } else {
+            playerData(list[0], null, completion);
+        }
+    }
+}
+
+const rename = (playerName, updateName, completion) => {
+
+    let header = getRequestHeaderForSheet(c.worksheetP2());
+    
+    Spreadsheet.load(header, function sheetReady(err, spreadsheet) {
+        // check number of available rows
+        
+        spreadsheet.metadata(function(err, metadata){
+            if(err) throw err;
+            
+            spreadsheet.receive({getValues: true},function(err, rows, info) {
+                if(err) throw err;
+              
+                let firstRow = rows['1'];
+              
+                if (!containsName(firstRow, playerName)) {
+                    completion(`${i18n.get('PlayerNotFound')}`);
+                    return;
+                }
+                let array = Object.keys(firstRow);
+                let firstNameIndex = array[0];
+                let lastNameIndex = array[array.length - 1];
+                var emptySlot = -1;
+              
+                for (var colIndex = firstNameIndex; colIndex < lastNameIndex;colIndex++) {
+                    if (!firstRow.hasOwnProperty(`${colIndex}`)) {
+                        emptySlot = colIndex;
+                        break;
+                    }
+                }
+
+
+                const callback = function(column) {
+
+                    completion(`${i18n.get('CompleteEditingPlayer')}`);
+            //     if (data == null) {
+            //         var rowEntry = {};
+                  
+            //         rowEntry[`${column}`] = playerName;
+            //         spreadsheet.add({1:rowEntry});
+            //     } else {
+            //         var editedData = {};
+
+            //         for (let row of Object.keys(data)) {
+            //             let value = data[row];
+            //             for (let u of Object.values(data[row])) {
+            //                 var rowEntry = {};
+            //                 rowEntry[`${column}`] = u;
+            //                 editedData[`${row}`] = rowEntry;
+            //             }
+
+            //         }
+
+            //         spreadsheet.add(editedData);
+            //     }
+            //     spreadsheet.send(function(err) {
+            //         if(err) throw err;
+            //         if (data == null) {
+            //             completion(`${i18n.get('SuccessfulAddingPlayer')}`);
+            //         }
+                    
+            //     });
+                };
+            
+            // free slot available
+            if (emptySlot > 0) {
+                callback(emptySlot);
+                return;
+            }
+
+            const rowItems = Object.keys(firstRow);
+            
+            var last = rowItems[rowItems.length - 1];
+            if (parseInt(last) < metadata.colCount) {
+                // enough columns for inserting
+                callback(parseInt(last) + 1);
+            } else {
+                spreadsheet.metadata({
+                    colCount: metadata.colCount+1
+                    }, function(err, metadata){
+                        if(err) throw err;
+                        callback(parseInt(last) + 1);
+
+                      });
+              }
+            });
+        });
+    });
+}
+
 const playerData = (playerName, data, completion) => {
     
+    if (playerName == null || playerName.length == 0) {
+        completion(`${i18n.get('FailedAddingPlayer')} [${playerName}]`,true);
+        return;
+    }
+
     let header = getRequestHeaderForSheet(c.worksheetP2());
     
     Spreadsheet.load(header, function sheetReady(err, spreadsheet) {
@@ -179,7 +293,7 @@ const playerData = (playerName, data, completion) => {
               let firstRow = rows['1'];
               
               if (containsName(firstRow, playerName)) {
-                  completion(`${i18n.get('FailedAddingPlayer')}`);
+                  completion(`${i18n.get('FailedAddingPlayer')} [${playerName}]`,true);
                   return;
               }
               let array = Object.keys(firstRow);
@@ -219,7 +333,7 @@ const playerData = (playerName, data, completion) => {
                 spreadsheet.send(function(err) {
                     if(err) throw err;
                     if (data == null) {
-                        completion(`${i18n.get('SuccessfulAddingPlayer')}`);
+                        completion(`${i18n.get('SuccessfulAddingPlayer')} [${playerName}]`,true);
                     }
                     
                 });
@@ -818,10 +932,12 @@ const smurfs = (completion) => {
 module.exports = {
     EPList: EPList,
     addPlayer: player,
+    addPlayers: players,
     checkout: checkout,
     findByName: findPlayer,
     backup: backup,
     restore: restore,
     members: members,
     smurfs: smurfs,
+    renamePlayer:rename
 };
