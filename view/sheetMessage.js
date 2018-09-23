@@ -165,8 +165,8 @@ const player = (playerName, completion) => {
 
 const players = (list, completion) => {
 
-    const callback = function(response, success, finished) {
-        completion(response, success, false);
+    const callback = function(playerName, success, finished) {
+        completion(playerName, success, false);
         const slicedList = list.slice(1,list.length);
         players(slicedList, completion);
     }
@@ -281,7 +281,7 @@ const rename = (playerName, updateName, completion) => {
 const playerData = (playerName, data, completion) => {
     
     if (playerName == null || playerName.length == 0) {
-        completion(`${i18n.get('FailedAddingPlayer')} [${playerName}]`,true);
+        completion(playerName,false ,true);
         return;
     }
 
@@ -299,7 +299,7 @@ const playerData = (playerName, data, completion) => {
               let firstRow = rows['1'];
               
               if (containsName(firstRow, playerName)) {
-                  completion(`${i18n.get('FailedAddingPlayer')} [${playerName}]`, false, true);
+                completion(playerName,false ,true);
                   return;
               }
               let array = Object.keys(firstRow);
@@ -339,7 +339,7 @@ const playerData = (playerName, data, completion) => {
                 spreadsheet.send(function(err) {
                     if(err) throw err;
                     if (data == null) {
-                        completion(`${i18n.get('SuccessfulAddingPlayer')} [${playerName}]`,false, true);
+                        completion(playerName,true ,true);
                     }
                     
                 });

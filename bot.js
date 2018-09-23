@@ -7,7 +7,6 @@ const { RichEmbed, Client, Attachment } = require("discord.js");
 const http = require("http");
 const c = require("./general/constLoader");
 const i18n = require('./general/langSupport');
-const fm = require('./general/contentFormatter');
 const strH = require('./general/stringHelper');
 const access = require('./general/accessManager');
 
@@ -150,8 +149,14 @@ bot.on("message", async message => {
             //add player to raw data index
             if (strH.hasCmds(command,[`${PREFIX}add`,`${PREFIX}a`])) {
 
-                const callback = function(response, success, finished) {
-                    message.channel.send(response);
+                const callback = function(playerName, success, finished) {
+
+                    if (success) {
+                        message.channel.send(`${i18n.get('SuccessfulAddingPlayer')} [${playerName}]`);
+                    } else {
+                        message.channel.send(`${i18n.get('FailedAddingPlayer')} [${playerName}]`);
+                    }
+
 
                     if (finished) {
                         message.channel.stopTyping();
@@ -159,7 +164,18 @@ bot.on("message", async message => {
 
                     //player added, try to handle tag
                     if (success) {
-                        
+                        const tag = c.defaultTag();
+
+                        const internalCallback = function(response) {
+                            
+                            if (response == null) {
+                                message.channel.send(`${i18n.get('PlayerNotFound')}`);
+                            } else {
+                                message.channel.send(response);
+                            }
+                        };
+            
+                        tagger.addTag(playerName,tag,message,internalCallback);
                     }
                 };
 

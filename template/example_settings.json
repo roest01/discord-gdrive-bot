@@ -17,8 +17,7 @@
   },
   "restricted":["Leader","Moderator"],
   "tagging": {
-      "tag":"VIP",
-      "searchChannel":"public"
+      "tag":"Member"
   },
   "author":"C4CW, roest",
   "version":"0.4.0"

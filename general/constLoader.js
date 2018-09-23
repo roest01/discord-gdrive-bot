@@ -183,6 +183,18 @@ const getVersion = () => {
     return exampleSettings.version;
 }
 
+// default tag
+var defaultTag = exampleSettings.tagging.tag;
+if (botSettings.hasOwnProperty("tagging")) {
+    if (botSettings.tagging.hasOwnProperty("tag")) {
+        defaultTag = botSettings.tagging.tag;
+    }
+}
+
+const getDefaultTag = () => {
+    return defaultTag;
+}
+
 // export
 module.exports = {
     botToken: getBotToken,
@@ -200,6 +212,7 @@ module.exports = {
     googleClientId: getGoogleClientId,
     googleClientSecret: getGoogleClientSecret,
     googleRefreshToken: getGoogleRefreshToken,
+    defaultTag: getDefaultTag,
     author: author,
     version: getVersion
 };
