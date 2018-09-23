@@ -157,7 +157,6 @@ bot.on("message", async message => {
                         message.channel.send(`${i18n.get('FailedAddingPlayer')} [${playerName}]`);
                     }
 
-
                     if (finished) {
                         message.channel.stopTyping();
                     }
@@ -165,38 +164,45 @@ bot.on("message", async message => {
                     //player added, try to handle tag
                     if (success) {
                         const tag = c.defaultTag();
-
                         const internalCallback = function(response) {
-                            
                             if (response == null) {
                                 message.channel.send(`${i18n.get('PlayerNotFound')}`);
                             } else {
                                 message.channel.send(response);
                             }
                         };
-            
                         tagger.addTag(playerName,tag,message,internalCallback);
                     }
                 };
 
                 message.channel.startTyping();
-
                 const arg = messageArray.slice(1, messageArray.length);
-
                 sheet.addPlayers(arg, callback);
                 return
             }
             
             //store player from raw data
             if (strH.hasCmds(command,[`${PREFIX}backup`, `${PREFIX}b`])) {
-                const callback = function(response) {
+                const callback = function(playerName, success) {
                 
-                    if (response == null) {
-                        message.channel.send(`${i18n.get('PlayerNotFound')}`);
+                    if (!success) {
+                        message.channel.send(`${i18n.get('PlayerNotFound')} [${playerName}]`);
                     } else {
-                        message.channel.send(response);
+                        const tag = c.defaultTag();
+                        message.channel.send(`${i18n.get('SuccessfulBackupPlayer')} [${playerName}]`);
+                        
+                        const callback = function(response) {
+                            
+                            if (response == null) {
+                                message.channel.send(`${i18n.get('PlayerNotFound')} [${playerName}]`);
+                            } else {
+                                message.channel.send(response);
+                            }
+                        };
+                        tagger.removeTag(playerName,tag,message,callback);
                     }
                     message.channel.stopTyping();
+
                 };
 
                 message.channel.startTyping();
@@ -241,8 +247,27 @@ bot.on("message", async message => {
         // restore archieved player
         if (strH.hasCmds(command,[`${PREFIX}restore`, `${PREFIX}r`])) {
             
-            const callback = function(response) {
-                message.channel.send(response);
+            const callback = function(playerName, success, full) {
+
+                if (success) {
+                    message.channel.send(`${i18n.get('SuccessfulRestorePlayer')} [${playerName}]`);
+                    const tag = c.defaultTag();
+                    const internalCallback = function(response) {
+                        if (response == null) {
+                            message.channel.send(`${i18n.get('PlayerNotFound')}`);
+                        } else {
+                            message.channel.send(response);
+                        }
+                    };
+                    tagger.addTag(playerName,tag,message,internalCallback);
+                } else {
+                    if (!full) {
+                        message.channel.send(`${i18n.get('PlayerNotFound')} [${playerName}]`);
+                    } else {
+                        message.channel.send(`${i18n.get('FailedRestoringPlayerGuildFull')} [${playerName}]`);
+                    }
+                }
+
                 message.channel.stopTyping();
             };
 

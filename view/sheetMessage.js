@@ -457,7 +457,7 @@ const backup = (user, completion) => {
             }
             
             if (index == null) {
-                completion(null);
+                completion(user, false);
                 return;
             } else {
                 
@@ -522,6 +522,7 @@ const storePlayer = (playerData,index, completion) => {
 
                   var pData = playerData;
                   
+
                   //update column
                   for (let k of Object.keys(pData)) {
                       
@@ -532,11 +533,13 @@ const storePlayer = (playerData,index, completion) => {
                       pData[k] = rowData;
                   }
                   
+                  const playerName = Object.values(Object.values(pData)[0])[0];
+
                   spreadsheet.add(pData);
                   spreadsheet.send(function(err) {
                     if(err) throw err;
 
-                      completion(`${i18n.get('SuccessfulBackupPlayer')}`);
+                      completion(playerName, true);
 
                   });
               };
@@ -584,7 +587,7 @@ const restore = (user, completion) => {
                     }
                     
                     if (index == null) {
-                        completion(`${i18n.get('PlayerNotFound')}`);
+                        completion(user, false,false);
                         return;
                     } else {
 
@@ -625,14 +628,14 @@ const restore = (user, completion) => {
                             playerData(user, updateMap, completion);
                         });
 
-                        completion(`${i18n.get('SuccessfulRestorePlayer')}`);
+                        completion(user, true, false);
 
                     }
                 });
             });
         } else {
             // guild is already full
-            completion(`${i18n.get('FailedRestoringPlayerGuildFull')}`);
+            completion(user, false, true);
         }
     };
     getGuildMembers(callback);
