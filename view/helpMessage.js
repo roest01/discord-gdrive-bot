@@ -25,10 +25,13 @@ const helpMessage = (PREFIX, author, hasRole) => {
         .addField(`${PREFIX}afk [TEXT]`, `${i18n.get('InfoCheckoutPlayer')}`);
     
     if (hasRole) {
-        embed.addField(`${PREFIX}add NAME`,`${i18n.get('InfoAddingPlayer')}`);
+        embed.addField(`${PREFIX}add NAME / NAMES`,`${i18n.get('InfoAddingPlayer')}`);
         embed.addField(`${PREFIX}backup NAME`,`${i18n.get('InfoBackupPlayer')}`);
         embed.addField(`${PREFIX}restore NAME`,`${i18n.get('InfoRestorePlayer')}`);
-        embed.addField(`${PREFIX}list`,`${i18n.get('InfoMemberList')}`);
+        embed.addField(`${PREFIX}list`,`${i18n.get('InfoMemberList')} [GAME]`);
+        embed.addField(`${PREFIX}users`,`${i18n.get('InfoMemberList')} [DISCORD]`);
+        embed.addField(`${PREFIX}tag NAME TAG`,`-`);
+        embed.addField(`${PREFIX}remove NAME TAG`,`-`);
     }
 
     embed.setFooter(`${i18n.get('Version')}: ${constant.version()} - ${constant.author()}`);

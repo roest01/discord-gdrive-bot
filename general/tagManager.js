@@ -66,39 +66,6 @@ const removeTag = (playerName, tag, message, completion) => {
     }
 
     memberWithTag(message, playerName, tag, callback);
-
-
-
-
-
-
-
-    // //if (hasRight(bot)) {
-    //     // // get role by ID
-    //     // let myRole = message.guild.roles.get("264410914592129025");
-
-    //     // // get role by name
-    //     // let myRole = message.guild.roles.find("name", "Moderators");
-
-    //     // // assuming role.id is an actual ID of a valid role:
-    //     // if(message.member.roles.has(role.id)) {
-    //     //     console.log(`Yay, the author of the message has the role!`);
-    //     // } else {
-    //     //     console.log(`Nope, noppers, nadda.`);
-    //     // }
-    //     let role = message.guild.roles.find("name", tag);
-
-    //     // Let's pretend you mentioned the user you want to add a role to (!addrole @user Role Name):
-    //     let member = message.mentions.members.first();
-        
-    //     // or the person who made the command: let member = message.member;
-        
-    //     // Remove a role!
-    //     member.removeRole(role).catch(console.error);
-    //     completion('go go go');
-    // //} else {
-    //     //completion("no no no");
-    // //}
 }
 
 // get all members
@@ -191,51 +158,32 @@ const memberWithoutTag = (message, name, tag, completion) => {
 // get all members with tag
 const memberWithTag = (message, name, tag, completion) => {
 
-    message.guild.fetchMembers()
-            .then(async function (guild) {
-                const members = guild.members;
+    let role = message.guild.roles.find("name", tag);
 
-                var resultList = [];
+    var resultList = [];
 
-                for (const m of members) {
+    for (const r of role.members) {
+        const guildMember = r[1];
+        
+        // ignore bots
+        if (guildMember.user.bot) {
+            continue;
+        } 
 
-                    const guildMember = m[1];
-
-                    // ignore bots
-                    if (guildMember.user.bot) {
-                        continue;
-                    } 
-
-                    var hasTag = false;
-
-                    for (const roleMap of guildMember.roles) {
-                        const role = roleMap[1];
-
-                        if (role.name == tag) {
-                            hasTag = true;
-                        }
-                    }
-
-                    if (hasTag) {
-                        if (guildMember.nickname != null  && guildMember.nickname.includes(name)) {
-                            resultList[resultList.length] = guildMember;
-                        } else {
-
-                            if (guildMember.displayedName !=null && guildMember.displayedName.includes(name)) {
-                                resultList[resultList.length] = guildMember;
-                            } else {
-                                const user = guildMember.user;
-                                if (user.username!=null && user.username.includes(name)) {
-                                    resultList[resultList.length] = guildMember;
-                                }
-                            }
-                        }
-
-                    }
+        if (guildMember.nickname != null  && guildMember.nickname.includes(name)) {
+            resultList[resultList.length] = guildMember;
+        } else {
+            if (guildMember.displayedName !=null && guildMember.displayedName.includes(name)) {
+                resultList[resultList.length] = guildMember;
+            } else {
+                const user = guildMember.user;
+                if (user.username!=null && user.username.includes(name)) {
+                    resultList[resultList.length] = guildMember;
                 }
-                completion(resultList);
-            })
-            .catch(console.error);
+            }
+        }
+    }
+    completion(resultList);
 }
 
 // export
