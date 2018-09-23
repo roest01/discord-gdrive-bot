@@ -165,8 +165,8 @@ const player = (playerName, completion) => {
 
 const players = (list, completion) => {
 
-    const callback = function(response, finished) {
-        completion(response, null, false);
+    const callback = function(response, success, finished) {
+        completion(response, success, false);
         const slicedList = list.slice(1,list.length);
         players(slicedList, completion);
     }
@@ -183,6 +183,12 @@ const players = (list, completion) => {
 }
 
 const rename = (playerName, updateName, completion) => {
+
+    //TODO: in dev
+    if (playerName!=null) {
+        completion(`${i18n.get('PlayerNotFound')}`);
+        return;
+    }
 
     let header = getRequestHeaderForSheet(c.worksheetP2());
     
@@ -293,7 +299,7 @@ const playerData = (playerName, data, completion) => {
               let firstRow = rows['1'];
               
               if (containsName(firstRow, playerName)) {
-                  completion(`${i18n.get('FailedAddingPlayer')} [${playerName}]`,true);
+                  completion(`${i18n.get('FailedAddingPlayer')} [${playerName}]`, false, true);
                   return;
               }
               let array = Object.keys(firstRow);
@@ -333,7 +339,7 @@ const playerData = (playerName, data, completion) => {
                 spreadsheet.send(function(err) {
                     if(err) throw err;
                     if (data == null) {
-                        completion(`${i18n.get('SuccessfulAddingPlayer')} [${playerName}]`,true);
+                        completion(`${i18n.get('SuccessfulAddingPlayer')} [${playerName}]`,false, true);
                     }
                     
                 });

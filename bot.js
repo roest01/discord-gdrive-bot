@@ -150,10 +150,16 @@ bot.on("message", async message => {
             //add player to raw data index
             if (strH.hasCmds(command,[`${PREFIX}add`,`${PREFIX}a`])) {
 
-                const callback = function(response, finished) {
+                const callback = function(response, success, finished) {
                     message.channel.send(response);
+
                     if (finished) {
                         message.channel.stopTyping();
+                    }
+
+                    //player added, try to handle tag
+                    if (success) {
+                        
                     }
                 };
 
@@ -295,6 +301,45 @@ bot.on("message", async message => {
                 return;
             }
 
+        }
+    }
+
+    if (hasRole){
+        if(strH.hasCmds(command,[`${PREFIX}u`,`${PREFIX}users`])) {
+
+            var tag = null;
+
+            if (messageArray.length > 1) {
+                tag = messageArray[1];
+            }
+
+            const callback = function(members) {
+                
+                let embed = new RichEmbed()
+                .setDescription(`${i18n.get('InfoMemberList')} [${tag}]: ${members.length}`);
+
+                var content = "";
+                
+                for (const guildMember of members) {
+                    const user = guildMember.user;
+
+                    var nickname = " / " + guildMember.nickname;
+
+                    if (guildMember.nickname == null) {
+                        nickname = "";
+                    }
+
+                    content = content +
+                     "- "+//+"[" + user.discriminator + "] " + 
+                     user.username + nickname + "\n"; 
+                }
+                embed.addField("-", content);
+                message.channel.send(embed);
+                message.channel.stopTyping();
+            };
+
+            message.channel.startTyping();
+            tagger.findMembers(message, tag, false ,callback);
         }
     }
 });
