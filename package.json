@@ -14,6 +14,7 @@
     "edit-google-spreadsheet": "^0.3.0",
     "http": "0.0.0",
     "loglevel": "^1.6.1",
+    "mysql": "^2.16.0",
     "pdf-image": "^2.0.0",
     "pdfmake": "^0.1.36",
     "request": "^2.83.0",
