@@ -19,6 +19,12 @@
   "tagging": {
       "tag":"Member"
   },
+  "storage": {
+      "host":"",
+      "login":"",
+      "pwd":"",
+      "db":""
+  },
   "author":"C4CW, roest",
   "version":"1.0.0"
 }

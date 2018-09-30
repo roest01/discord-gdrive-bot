@@ -112,6 +112,26 @@ if (googleRefreshToken == "") {
     googleRefreshToken = process.env.REFRESH_TOKEN;
 }
 
+var storageHost = botSettings.storage.host;
+if (storageHost == "") {
+    storageHost = process.env.STORAGE_HOST;
+}
+
+var storageLogin = botSettings.storage.login;
+if (storageLogin == "") {
+    storageLogin = process.env.STORAGE_LOGIN;
+}
+
+var storagePwd = botSettings.storage.pwd;
+if (storagePwd == "") {
+    storagePwd = process.env.STORAGE_PWD;
+}
+
+var storageDb = botSettings.storage.db;
+if (storageDb == "") {
+    storageDb = process.env.STORAGE_DB;
+}
+
 const getBotToken = () => {
     return botToken;
 }
@@ -174,6 +194,22 @@ const getGoogleRefreshToken = () => {
     return googleRefreshToken;
 }
 
+const getStorageHost = () => {
+    return storageHost;
+}
+
+const getStorageLogin = () => {
+    return storageLogin;
+}
+
+const getStoragePwd = () => {
+    return storagePwd;
+}
+
+const getStorageDb = () => {
+    return storageDb;
+}
+
 // author information
 const author = () => {
     return exampleSettings.author;
@@ -212,6 +248,10 @@ module.exports = {
     googleClientId: getGoogleClientId,
     googleClientSecret: getGoogleClientSecret,
     googleRefreshToken: getGoogleRefreshToken,
+    storageHost: getStorageHost,
+    storageLogin: getStorageLogin,
+    storagePwd: getStoragePwd,
+    storageDb: getStorageDb,
     defaultTag: getDefaultTag,
     author: author,
     version: getVersion

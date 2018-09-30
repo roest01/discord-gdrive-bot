@@ -87,9 +87,9 @@ function getRequestHeaderForSheet(sheetName) {
     }
 
     // used existing cache token for faster access
-    if (SheetCache.getInstance().getSheetToken(c.spreadSheetName())!=null) {
-        header["worksheetId"] = SheetCache.getInstance().getSheetToken(c.spreadSheetName());
-    }
+    // if (SheetCache.getInstance().getSheetToken(c.spreadSheetName())!=null) {
+    //     header["worksheetId"] = SheetCache.getInstance().getSheetToken(c.spreadSheetName());
+    // }
 
     if (SheetCache.getInstance().getPageToken(sheetName)!=null) {
         header["spreadsheetId"] = SheetCache.getInstance().getPageToken(sheetName);
