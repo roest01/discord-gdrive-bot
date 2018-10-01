@@ -79,18 +79,94 @@ function generateDefaultGuild(completion) {
     dbConnector.executeParamQuery(`SELECT * FROM GUILD WHERE tag=?`,[DEFAULT_IMPORT_GUILD_TAG], dbSelectRequestGuild);
 }
 
+function findPlayerIdByName(items, name) {
+    for (const player of items) {
+        if (player.name == name) {
+            return player.id;
+        }
+    }
+    return null;
+}
+
+
+// helper method to convert time
+function convertGerTimeToDate(input) {
+    var parts = input.match(/(\d+)/g);
+    const date = new Date(Date.UTC(parts[2], parts[1]-1, parts[0], 0, 0, 0));
+    return date;
+}
+
+// fetch active/inactive players
+function fetchAllPlayer(active, completion) {
+    const memberDataCallback = (list) => {
+
+        // fetch guild and player ids
+        const playerGuildRequest = (err1,res1,field1) => {
+
+            const playerListFromDb = res1[0]; 
+            const guildListFromDb = res1[1];
+
+            var guild = null;
+            if (guildListFromDb.length > 0) {
+                guild = guildListFromDb[0];
+            } else {
+                completion();
+                console.log('Guild missing');
+                return;
+            }
+
+            var fullQuery = "";
+            var arguments = [];
+            for (const item  of list) {
+                const currentName = Object.keys(item)[0];
+                const playerId = findPlayerIdByName(playerListFromDb, currentName);
+
+                if (playerId != null) {
+                    const timeMap = item[currentName];
+                    for (const time of Object.keys(timeMap)) {
+                        fullQuery = fullQuery + `INSERT INTO RAWDATA(date,guild_id,player_id,value) VALUES(?,?,?,?);`;
+                        arguments.push(convertGerTimeToDate(time));
+                        arguments.push(guild.id);
+                        arguments.push(playerId);
+                        arguments.push(timeMap[time]);
+                    }
+                } else {
+                    console.log(currentName + " not found");
+                }
+            }
+
+            const rawDataReqCallback = () => {
+                completion();
+            }
+
+            dbConnector.enableMultipleReq(true);
+            dbConnector.executeParamQuery(fullQuery, arguments,rawDataReqCallback);
+        }
+        dbConnector.enableMultipleReq(true);
+        dbConnector.executeParamQuery(`SELECT id,name FROM PLAYER;SELECT * FROM GUILD WHERE tag=? AND name=?`,[DEFAULT_IMPORT_GUILD_TAG,DEFAULT_IMPORT_GUILD_NAME], playerGuildRequest);
+    }
+    gsheet.allMemberData(active, memberDataCallback);
+}
+
 // EXECUTION
 
 const completionActiveHandler = () => {
+    // fetch inactive members
     const completionInactiveHandler = () => {
+
+        // fetch guild
         const completeInsertGuild = () => {
             console.log('Completed');
+
+            const completeFetchRawData = () => {
+                console.log('Migration completed');
+            }
+            fetchAllPlayer(true, completeFetchRawData);
         }
         generateDefaultGuild(completeInsertGuild);
     }
     fetchMembers(false, completionInactiveHandler);
 }
-
 fetchMembers(true, completionActiveHandler);
 
 

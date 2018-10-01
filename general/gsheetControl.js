@@ -57,6 +57,7 @@ var SheetCache = (function () {
         } 
     };
 })();
+  
 
 /**
  * Prepare header for server request
@@ -139,6 +140,83 @@ function getGuildmembers(page, completion) {
     });
 }
 
+function getGuildmemberData(page, completion) {
+
+    const header = getRequestHeaderForSheet(page);
+    Spreadsheet.load(header, function sheetReady(err, spreadsheet) {
+
+        //cache ID for later use
+        SheetCache.getInstance().addSheetToken(c.spreadSheetName(),spreadsheet.worksheetId);
+        SheetCache.getInstance().addPageToken(page,spreadsheet.spreadsheetId);
+
+        spreadsheet.receive({getValues: true},function(err, rows, info) {
+            if(err) throw err;
+
+            //name list
+            var nameList = [];
+
+            // prepare player list
+            if (Object.keys(rows).length > 0) {
+
+                const firstRow = Object.keys(rows)[0];
+                for (let value of Object.values(rows[firstRow])) {
+                    nameList.push(value);
+                }
+    
+                if (nameList.length == 0) {
+                    if (completion == null) {return;}
+                    completion(null);
+                    return;
+                } else {
+                    nameList.sort(function (a, b) {
+                        return a.toLowerCase().localeCompare(b.toLowerCase());
+                    });
+                }
+            }
+
+            // list with playername and rawdata
+            var playerList = [];
+
+            for (const name of nameList) {
+                var playerData = {};
+                // prepare player list
+                if (Object.keys(rows).length > 1) {
+
+                    // find column
+                    var index = -1;
+                    for (let k of Object.keys(rows[Object.keys(rows)[0]])) {
+                        const mappedName = rows[Object.keys(rows)[0]][k];
+                        if (mappedName == name) {
+                            index = k;
+                            break;
+                        }
+                    }
+
+                    if (index < 0) {
+                        if (completion == null) {return;}
+                        completion(null);
+                        return;
+                    }
+
+                    for (let value of Object.values(rows)) {
+                        if (value[index] == name) continue;
+
+                        if (value.hasOwnProperty(index)) {
+                            const date = value[1];
+                            playerData[date] = value[index];
+                        } 
+                    }
+                }
+                var data = {};
+                data[name] = playerData;
+
+                playerList.push(data);
+            }
+            completion(playerList);
+        });
+    });
+}
+
 function getGuildmemberByName(name, page, completion) {
 
     //get first page
@@ -202,7 +280,7 @@ const getMembers = (active, completion) => {
 }
 
 // fetch player column data
-const getMember = (name, active, completion) => {
+const getMemberData = (name, active, completion) => {
     if (active) {
         getGuildmemberByName(name, c.worksheetP2(), completion);
     } else {
@@ -210,8 +288,17 @@ const getMember = (name, active, completion) => {
     }
 }
 
+const getAllMemberData = (active, completion) => {
+    if (active) {
+        getGuildmemberData(c.worksheetP2(), completion);
+    } else {
+        getGuildmemberData(c.worksheetP3(), completion);
+    }
+}
+
 // export
 module.exports = {
     members: getMembers,
-    member: getMember
+    member: getMemberData,
+    allMemberData: getAllMemberData
 };
