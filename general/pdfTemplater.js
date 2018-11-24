@@ -101,7 +101,7 @@ const VisualManager = (dates, players, options) => {
     const CELL_FONT_SIZE = 26;
     const SIZE = players.count() + 1;
 
-    const PAGE_SIZE = (2 * CELL_MARGIN + CELL_FONT_SIZE + 5) * SIZE + 80;
+    const PAGE_SIZE = (2 * CELL_MARGIN + CELL_FONT_SIZE + 8) * SIZE; //+ 80;
 
     this._createTemplate = function(dates, players){
         let visualManager = this;

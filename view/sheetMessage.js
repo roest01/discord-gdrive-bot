@@ -95,6 +95,9 @@ const EPList = function() {
                     });
                 });
 
+                // sort by last week entry
+                players.sort(sortPlayer);
+
                 let fs = require('fs');
 
                 let memberFilePath = 'resources/members.json';
@@ -158,6 +161,21 @@ const EPList = function() {
         return epList.players(nameBasedSearch).order("week4 asc");
     }
 };
+
+/**
+ * Desc sort
+ * @param {player} a 
+ * @param {player} b 
+ */
+function sortPlayer(a,b) {
+
+    if (a.week4 == "-" && b.week4 != "-") return 1;
+    if (b.week4 == "-" && a.week4 != "-") return -1;
+
+    if (a.week4 > b.week4) return -1;
+    if (b.week4 > a.week4) return 1;
+    return 0;
+}
 
 const player = (playerName, completion) => {
     playerData(playerName, null, completion);
