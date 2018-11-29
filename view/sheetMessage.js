@@ -911,6 +911,32 @@ const members = (completion) => {
     getGuildMembers(callback);
 }
 
+// method to get last 4 dates
+const recentDates = (completion) => {
+   
+    //get first page
+    const header = getRequestHeaderForSheet(c.worksheetP1());
+    
+    Spreadsheet.load(header, function sheetReady(err, spreadsheet) {
+        spreadsheet.receive({getValues: true},function(err, rows, info) {
+            if(err) throw err;
+
+            var timeList = [];
+            for (let row of Object.keys(rows)) {
+                let columns = rows[row];
+
+                for (let c of Object.keys(columns)) {
+                    if (c > 1 && c < 6) {
+                        let date = columns[c];
+                        timeList.push(date);
+                    }
+                }
+                break;
+            }
+            completion(timeList);
+        });
+    });
+}
 
 // method for showing list of all recorded smurfs
 const smurfs = (completion) => {
@@ -965,5 +991,6 @@ module.exports = {
     restore: restore,
     members: members,
     smurfs: smurfs,
-    renamePlayer:rename
+    renamePlayer:rename,
+    recentDates:recentDates
 };

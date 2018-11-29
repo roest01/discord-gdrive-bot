@@ -23,5 +23,6 @@
   "FailedRemovingTag":"Spieler hat den Tag nicht oder wurde nicht gefunden.",
   "FailedRestoringPlayerGuildFull":"Spieler kann nicht wiederhergestellt werden. Gilde bereits voll",
   "PlayerNotFound":"Spielername nicht gefunden",
-  "EPGeneratedAt":"EP Bericht generiert am"
+  "EPGeneratedAt":"EP Bericht generiert am",
+  "Time":"Zeit"
 }

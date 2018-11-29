@@ -22,5 +22,6 @@
   "FailedAddingTag":"Player already has the tag or was not found.",
   "FailedRemovingTag":"Player doesn't have this tag or was not found.",
   "FailedRestoringPlayerGuildFull":"Player can't be restored. Guild limit reached",
-  "PlayerNotFound":"Could not found player with given name"
+  "PlayerNotFound":"Could not found player with given name",
+  "Time":"Time"
 }

@@ -54,10 +54,18 @@ bot.on("ready", async() => {
     }
 });
 
+// messages
+bot.on("messageUpdate", async (oldMessage, newMessage) => {
+    executeCommand(newMessage);
+});
+
 
 // messages
 bot.on("message", async message => {
+    executeCommand(message);
+});
 
+function executeCommand(message) {
     //ignore own messages
     if (message.author.bot) {
         return;
@@ -139,6 +147,24 @@ bot.on("message", async message => {
 
         message.channel.startTyping();
         sheet.smurfs(callback);
+        return;
+    }
+
+    if (strH.hasCmds(command,[`${PREFIX}time`, `${PREFIX}t`])) {
+        const callback = function(list) {
+            if (list !=null) {
+                var msgString = "";
+                list.forEach(date => {
+                    if (msgString.length == 0) {
+                        msgString = `${i18n.get('Time')}: `+date;
+                    } else {
+                        msgString = msgString + ", " + date;
+                    }
+                });
+                message.channel.send(msgString);
+            }
+        };
+        sheet.recentDates(callback);
         return;
     }
 
@@ -386,14 +412,12 @@ bot.on("message", async message => {
                 }
                 embed.addField("-", content);
                 message.channel.send(embed);
-                message.channel.stopTyping();
             };
 
-            message.channel.startTyping();
             tagger.findMembers(message, tag, false ,callback);
         }
     }
-});
+}
 
 // login bot into discord
 if (!(c.botToken() == null || c.botToken().length == 0)) {
