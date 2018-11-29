@@ -171,7 +171,7 @@ bot.on("message", async message => {
                                 message.channel.send(response);
                             }
                         };
-                        tagger.addTag(playerName,tag,message,internalCallback);
+                        //tagger.addTag(playerName,tag,message,internalCallback);
                     }
                 };
 
@@ -199,7 +199,7 @@ bot.on("message", async message => {
                                 message.channel.send(response);
                             }
                         };
-                        tagger.removeTag(playerName,tag,message,callback);
+                        //tagger.removeTag(playerName,tag,message,callback);
                     }
                     message.channel.stopTyping();
 
@@ -259,7 +259,7 @@ bot.on("message", async message => {
                             message.channel.send(response);
                         }
                     };
-                    tagger.addTag(playerName,tag,message,internalCallback);
+                    //tagger.addTag(playerName,tag,message,internalCallback);
                 } else {
                     if (!full) {
                         message.channel.send(`${i18n.get('PlayerNotFound')} [${playerName}]`);
@@ -338,7 +338,7 @@ bot.on("message", async message => {
                 };
     
                 message.channel.startTyping();
-                tagger.removeTag(messageArray[1],messageArray[2],message,callback);
+                //tagger.removeTag(messageArray[1],messageArray[2],message,callback);
                 return;
             }
 
@@ -356,8 +356,14 @@ bot.on("message", async message => {
 
             const callback = function(members) {
                 
+                var detailsTag = "";
+
+                if (tag!=null) {
+                    detailsTag = ` [${tag}]`
+                }
+
                 let embed = new RichEmbed()
-                .setDescription(`${i18n.get('InfoMemberList')} [${tag}]: ${members.length}`);
+                .setDescription(`${i18n.get('InfoMemberList')}${detailsTag}: ${members.length}`);
 
                 var content = "";
                 
@@ -373,6 +379,10 @@ bot.on("message", async message => {
                     content = content +
                      "- "+//+"[" + user.discriminator + "] " + 
                      user.username + nickname + "\n"; 
+                }
+
+                if (content == "") {
+                    content = `${detailsTag}: Not found`;
                 }
                 embed.addField("-", content);
                 message.channel.send(embed);

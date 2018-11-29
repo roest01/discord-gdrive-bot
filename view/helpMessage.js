@@ -21,8 +21,8 @@ const helpMessage = (PREFIX, author, hasRole) => {
         .setAuthor(`${author}`)
         .setDescription(`${i18n.get('FollowingCommands')}`)
         .addField(`${PREFIX}ep`, `${i18n.get('InfoGuildMemberEPList')}`)
-        .addField(`${PREFIX}find NAME`, `${i18n.get('InfoFindPlayer')}`)
-        .addField(`${PREFIX}afk [TEXT]`, `${i18n.get('InfoCheckoutPlayer')}`);
+        .addField(`${PREFIX}find NAME`, `${i18n.get('InfoFindPlayer')}`);
+        //.addField(`${PREFIX}afk [TEXT]`, `${i18n.get('InfoCheckoutPlayer')}`)
     
     if (hasRole) {
         embed.addField(`${PREFIX}add NAME / NAMES`,`${i18n.get('InfoAddingPlayer')}`);
@@ -30,8 +30,8 @@ const helpMessage = (PREFIX, author, hasRole) => {
         embed.addField(`${PREFIX}restore NAME`,`${i18n.get('InfoRestorePlayer')}`);
         embed.addField(`${PREFIX}list`,`${i18n.get('InfoMemberList')} [GAME]`);
         embed.addField(`${PREFIX}users`,`${i18n.get('InfoMemberList')} [DISCORD]`);
-        embed.addField(`${PREFIX}tag NAME TAG`,`-`);
-        embed.addField(`${PREFIX}remove NAME TAG`,`-`);
+        //embed.addField(`${PREFIX}tag NAME TAG`,`-`);
+        //embed.addField(`${PREFIX}remove NAME TAG`,`-`);
     }
 
     embed.setFooter(`${i18n.get('Version')}: ${constant.version()} - ${constant.author()}`);

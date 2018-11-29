@@ -118,13 +118,11 @@ const EPList = function() {
     epList.generatePNG = function(playerName){
         return new Promise(function(resolve, reject){
             epList.getData().then(function(){
-                let players = epList.players();
+                var players = epList.players();
 
                 if (!!playerName){
-                   players = epList.filterPlayersByName(players, playerName);
+                   players = epList.filterPlayersByName(players.order("week4 asc"), playerName);
                 }
-
-
 
                 if (players.count() < 2){ //header == 1
                     reject(i18n.get('PlayerNotFound'));
@@ -145,8 +143,8 @@ const EPList = function() {
             value: playerName
         };
         let specificPlayer = epList.players({name:playerName});
-        let gtPlayers = epList.players({week4: {gt: specificPlayer.first().week4}}).order("week4").limit(2);
-        let ltPlayers = epList.players({week4: {lt: specificPlayer.first().week4}}).limit(2);
+        let gtPlayers = epList.players({week4: {gt: specificPlayer.first().week4}}).order("week4").limit(1);
+        let ltPlayers = epList.players({week4: {lt: specificPlayer.first().week4}}).limit(1);
 
         let nameBasedSearch = [{
             name: specificPlayer.first().name
@@ -897,9 +895,10 @@ const members = (completion) => {
 
             // player names
             var playerNames = "";
-
+            var index = 1;
             for (let name of players) {
-                playerNames = playerNames + name + "\n";
+                playerNames = playerNames + index+". " + name + "\n";
+                index = index + 1;
             }
 
             let embed = new Discord.RichEmbed();

@@ -100,8 +100,9 @@ const VisualManager = (dates, players, options) => {
     const CELL_MARGIN = 10;
     const CELL_FONT_SIZE = 26;
     const SIZE = players.count() + 1;
+    const PAGE_MARGIN = 40;
 
-    const PAGE_SIZE = (2 * CELL_MARGIN + CELL_FONT_SIZE + 8) * SIZE; //+ 80;
+    const PAGE_SIZE = (2 * CELL_MARGIN + CELL_FONT_SIZE + 8) * SIZE + PAGE_MARGIN * 2; //+ 80;
 
     this._createTemplate = function(dates, players){
         let visualManager = this;
@@ -111,7 +112,7 @@ const VisualManager = (dates, players, options) => {
                 width: 1200,
                 height: PAGE_SIZE //+ header
             },
-            pageMargins: 40,
+            pageMargins: PAGE_MARGIN,
             content: [
                 {
                     style: 'tableBody',
