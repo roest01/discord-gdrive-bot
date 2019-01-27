@@ -66,8 +66,8 @@ bot.on("message", async message => {
 });
 
 function executeCommand(message) {
-    //ignore own messages
-    if (message.author.bot) {
+    //ignore own messages , instead of every botmessage ...message.author.bot
+    if (message.author.id == bot.user.id) {
         return;
     }
     
