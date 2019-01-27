@@ -294,6 +294,52 @@ const rename = (playerName, updateName, completion) => {
     });
 }
 
+const checkUuid = (uuid, completion) => {
+
+    if (uuid == null || uuid.length == 0) {
+        completion(`${i18n.get('PlayerNotFound')}`);
+        return;
+    }
+
+    let header = getRequestHeaderForSheet(c.worksheetP7());
+    
+    Spreadsheet.load(header, function sheetReady(err, spreadsheet) {
+
+        spreadsheet.metadata(function(err, metadata){
+            if(err) throw err;
+            
+            spreadsheet.receive({getValues: true},function(err, rows, info) {
+                if(err) throw err;
+                
+                let firstRow = rows['1'];
+
+                for (var rowIndex=2;rowIndex < metadata.rowCount;rowIndex++) {
+
+                    let row = rows[`${rowIndex}`];
+
+                    if (row!=null && row.hasOwnProperty('1')) {
+                        if (uuid == row['1']) {
+                            let embed = new Discord.RichEmbed();
+                            embed.setTitle(uuid);
+                            embed.addField(`${firstRow['2']}`,`${row['2']}`);
+
+                            if (row.hasOwnProperty('3')) {
+                                embed.addField(`${firstRow['3']}`,`${row['3']}`);
+                            }
+
+                            completion(embed);
+                            return;
+                        }
+                    }
+
+                }
+
+                completion(`${i18n.get('PlayerNotFound')}`);
+            });
+        });
+    });
+}
+
 const playerData = (playerName, data, completion) => {
     
     if (playerName == null || playerName.length == 0) {
@@ -986,6 +1032,7 @@ module.exports = {
     addPlayer: player,
     addPlayers: players,
     checkout: checkout,
+    checkUuid: checkUuid,
     findByName: findPlayer,
     backup: backup,
     restore: restore,

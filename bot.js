@@ -315,6 +315,18 @@ function executeCommand(message) {
             return;
         }
 
+        // check uuid
+        if (strH.hasCmds(command,[`${PREFIX}check`])) {
+            
+            const callback = function(response) {
+                message.channel.send(response);
+                message.channel.stopTyping();
+            };
+
+            message.channel.startTyping();
+            sheet.checkUuid(messageArray[1], callback);
+            return;
+        }
 
         // old find method
         if (strH.hasCmd(command,`${PREFIX}search`)) {

@@ -93,6 +93,13 @@ if (worksheetP6 == "") {
     worksheetP6 = process.env.WORKSHEET_P6;
 }
 
+// worksheet Page 7
+var worksheetP7 = exampleSettings.googleSheet.worksheetP7;
+if (worksheetP7 == "") {
+    // Heroku ENV token
+    worksheetP7 = process.env.WORKSHEET_P7;
+}
+
 
 var googleClientId = botSettings.googleSheet.client_id;
 if (googleClientId == "") {
@@ -182,6 +189,10 @@ const getworksheetP6 = () => {
     return worksheetP6;
 }
 
+const getworksheetP7 = () => {
+    return worksheetP7;
+}
+
 const getGoogleClientId = () => {
     return googleClientId;
 }
@@ -245,6 +256,7 @@ module.exports = {
     worksheetP4: getworksheetP4,
     worksheetP5: getworksheetP5,
     worksheetP6: getworksheetP6,
+    worksheetP7: getworksheetP7,
     googleClientId: getGoogleClientId,
     googleClientSecret: getGoogleClientSecret,
     googleRefreshToken: getGoogleRefreshToken,
