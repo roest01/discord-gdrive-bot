@@ -403,27 +403,48 @@ function executeCommand(message) {
                 let embed = new RichEmbed()
                 .setDescription(`${i18n.get('InfoMemberList')}${detailsTag}: ${members.length}`);
 
-                var content = "";
+                var nameList = [];
                 
                 for (const guildMember of members) {
                     const user = guildMember.user;
 
-                    var nickname = " / " + guildMember.nickname;
+                    var nickname = " / **" + guildMember.nickname+"**";
 
                     if (guildMember.nickname == null) {
                         nickname = "";
                     }
-
-                    content = content +
-                     "- "+//+"[" + user.discriminator + "] " + 
-                     user.username + nickname + "\n"; 
+                    nameList.push(user.username + nickname);
                 }
 
-                if (content == "") {
-                    content = `${detailsTag}: Not found`;
+                if (nameList.length == 0) {
+                    embed.addField("-", `Tag${detailsTag}: Not found`);
+                    message.channel.send(embed);
+                } else {
+                    var output = "";
+
+
+                    nameList.sort(function (a, b) {
+                        return a.toLowerCase().localeCompare(b.toLowerCase());
+                    });
+
+                    for (const name of nameList) {
+                        output = output +"- "+ name + "\n"; 
+
+                        if (output.length > 900) {
+                            let embedNames = new RichEmbed()
+                            embedNames.addField("-", output);
+                            message.channel.send(embedNames);
+                            output = "";
+                        }
+                    }
+
+                    if (output != "") {
+                        let embedNames = new RichEmbed()
+                        embedNames.addField("-", output);
+                        message.channel.send(embedNames);
+                    }
                 }
-                embed.addField("-", content);
-                message.channel.send(embed);
+
             };
 
             tagger.findMembers(message, tag, false ,callback);
