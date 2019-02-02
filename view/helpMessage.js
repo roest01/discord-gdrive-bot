@@ -32,6 +32,7 @@ const helpMessage = (PREFIX, author, hasRole) => {
         embed.addField(`${PREFIX}list`,`${i18n.get('InfoMemberList')} [GAME]`);
         embed.addField(`${PREFIX}users`,`${i18n.get('InfoMemberList')} [DISCORD]`);
         embed.addField(`${PREFIX}rename OLDNAME NEWNAME`,`${i18n.get('InfoRenamingPlayer')} `);
+        embed.addField(`${PREFIX}addTime`,`${i18n.get('InfoAddingTime')} `);
         //embed.addField(`${PREFIX}tag NAME TAG`,`-`);
         //embed.addField(`${PREFIX}remove NAME TAG`,`-`);
     }

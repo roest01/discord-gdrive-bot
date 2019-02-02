@@ -5,6 +5,7 @@
   "DisplayActiveMembers":"Display active guild members",
   "FollowingCommands":"Following commands are available:",
   "InfoAddingPlayer":"Adding new player",
+  "InfoAddingTime":"Adding new date",
   "InfoBackupPlayer":"Backup an existing player",
   "InfoFindPlayer":"Displaying the achieving scores for recent weeks",
   "InfoGuildMemberEPList":"Display all guild members with their score",
@@ -15,6 +16,7 @@
   "InfoCheckoutPlayer":"Checkout with reason",
   "SuccessfulAddingPlayer":"Successful adding player",
   "SuccessAddingTag":"Player recieved new tag.",
+  "SuccessfulAddTime":"Successful adding time",
   "SuccessfulBackupPlayer":"Successful backup player",
   "SuccessRemovingTag":"Player lost his/her tag.",
   "SuccessRenameingPlayer":"Player was renamed.",
@@ -24,6 +26,7 @@
   "FailedAddingTag":"Player already has the tag or was not found.",
   "FailedRemovingTag":"Player doesn't have this tag or was not found.",
   "FailedRestoringPlayerGuildFull":"Player can't be restored. Guild limit reached",
+  "FailedAlreadyExistDate":"Entry with given date already exist",
   "PlayerNotFound":"Could not found player with given name",
   "Time":"Time"
 }

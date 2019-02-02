@@ -168,6 +168,18 @@ function executeCommand(message) {
         return;
     }
 
+    // add empty row with current date
+    if (strH.hasCmds(command,[`${PREFIX}addtime`,`${PREFIX}at`])) {
+
+        const callback = function(output) {
+            message.channel.send(output);
+            message.channel.stopTyping();
+        };
+        message.channel.startTyping();
+        sheet.addTime(callback);
+        return;
+    }
+
     if (messageArray.length > 1) {
         
         if (hasRole) {

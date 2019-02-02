@@ -5,6 +5,7 @@
   "DisplayActiveMembers":"Anzeige aktive Gildenmitglieder",
   "FollowingCommands":"Folgende Befehle sind verfügbar:",
   "InfoAddingPlayer":"Hinzufügen eines neuen Spieler",
+  "InfoAddingTime":"Hinzufügen eines neuen Datums",
   "InfoBackupPlayer":"Archivieren eines vorhandenen Spieler",
   "InfoFindPlayer":"Anzeige der erreichten Gildenpunkte für die letzten Wochen",
   "InfoGuildMemberEPList":"Anzeige der Liste aller Mitglieder mit ihren Punkten",
@@ -15,6 +16,7 @@
   "InfoCheckoutPlayer":"Abmeldung mit Grund",
   "SuccessfulAddingPlayer":"Spieler wurde erfolgreich hinzugefügt",
   "SuccessAddingTag":"Spieler hat den Tag erhalten.",
+  "SuccessfulAddTime":"Datum erfolgreich hingefügt.",
   "SuccessfulBackupPlayer":"Spieler wurde erfolgreich archiviert",
   "SuccessRemovingTag":"Spieler hat den Tag nicht mehr.",
   "SuccessRenameingPlayer":"Spieler wurde erfolgreich umbenannt.",
@@ -24,6 +26,7 @@
   "FailedAddingTag":"Spieler hat den Tag bereits oder wurde nicht gefunden.",
   "FailedRemovingTag":"Spieler hat den Tag nicht oder wurde nicht gefunden.",
   "FailedRestoringPlayerGuildFull":"Spieler kann nicht wiederhergestellt werden. Gilde bereits voll",
+  "FailedAlreadyExistDate":"Eintrag mit dem Datum existiert bereits",
   "PlayerNotFound":"Spielername nicht gefunden",
   "EPGeneratedAt":"EP Bericht generiert am",
   "Time":"Zeit"

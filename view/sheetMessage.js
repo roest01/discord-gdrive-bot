@@ -198,6 +198,94 @@ const players = (list, completion) => {
     }
 }
 
+const time = (completion) => {
+
+    let header = getRequestHeaderForSheet(c.worksheetP2());
+    
+    Spreadsheet.load(header, function sheetReady(err, spreadsheet) {
+        // check number of available rows
+        
+        spreadsheet.metadata(function(err, metadata){
+            if(err) throw err;
+            
+            spreadsheet.receive({getValues: true},function(err, rows, info) {
+                if(err) throw err;
+              
+                //let firstRow = rows['1'];
+
+                let lastRowIndex = Object.keys(rows).length;
+                let lastRow = rows[`${lastRowIndex}`];
+                let lastRowDate = lastRow[1];
+                
+                let meta = metadata;
+
+                var today = new Date();
+                var dd = today.getDate();
+                var mm = today.getMonth() + 1; //January is 0!
+                var yyyy = today.getFullYear();
+
+                if (dd < 10) {
+                    dd = '0' + dd;
+                }
+
+                if (mm < 10) {
+                    mm = '0' + mm;
+                }
+
+                if (lastRowDate != null) {
+                    let elements = lastRowDate.split('.');
+                    if (elements.length == 3) {
+                        if (parseInt(elements[0])==parseInt(dd) &&
+                            parseInt(elements[1])==parseInt(mm) &&
+                            parseInt(elements[2])==parseInt(yyyy)) {
+                            completion(`${i18n.get('FailedAlreadyExistDate')}`);
+                            return;
+                        }
+                    }
+                }
+
+                if (lastRowIndex < meta.rowCount) {
+                    // enough empty rows for inserting new row content
+
+                    var timeMap = {};
+                    timeMap[lastRowIndex+1] = {1:mm + '.' + dd + '.' + yyyy};
+
+                    spreadsheet.add(timeMap);
+ 
+                    spreadsheet.send(function(err) {
+                    if(err) throw err;
+                        completion(`${i18n.get('SuccessfulAddTime')}`);
+                    });
+                } else {
+                    // adjust sheet size
+                    let callback = function () {
+
+                        var timeMap = {};
+                        timeMap[lastRowIndex+1] = {1:mm + '.' + dd + '.' + yyyy};
+
+                        spreadsheet.add(timeMap);
+    
+                        spreadsheet.send(function(err) {
+                        if(err) throw err;
+                            completion(`${i18n.get('SuccessfulAddTime')}`);
+                        });
+                    };
+
+                    spreadsheet.metadata({
+                        rowCount: metadata.rowCount+1
+                        }, function(err, metadata){
+                            if(err) throw err;
+                            callback();
+    
+                    });
+                    
+                }
+
+            });
+        });
+    });
+}
+
 const rename = (playerName, updateName, completion) => {
 
     //TODO: in dev
@@ -989,6 +1077,7 @@ module.exports = {
     EPList: EPList,
     addPlayer: player,
     addPlayers: players,
+    addTime: time,
     checkout: checkout,
     checkUuid: checkUuid,
     findByName: findPlayer,
