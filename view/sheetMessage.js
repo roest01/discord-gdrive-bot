@@ -201,7 +201,7 @@ const players = (list, completion) => {
 const rename = (playerName, updateName, completion) => {
 
     //TODO: in dev
-    if (playerName!=null) {
+    if (playerName==null || updateName==null ) {
         completion(`${i18n.get('PlayerNotFound')}`);
         return;
     }
@@ -228,67 +228,25 @@ const rename = (playerName, updateName, completion) => {
                 let lastNameIndex = array[array.length - 1];
                 var emptySlot = -1;
               
-                for (var colIndex = firstNameIndex; colIndex < lastNameIndex;colIndex++) {
-                    if (!firstRow.hasOwnProperty(`${colIndex}`)) {
-                        emptySlot = colIndex;
-                        break;
+                for (var index = 0; index < array.length; index++) {
+
+                    let mapIndex = array[index];
+                    let value = firstRow[mapIndex];
+
+                    let mapKey = parseInt(mapIndex);
+
+                    if (value == playerName) {
+                        var updateMap = {};
+                        updateMap[mapKey] = updateName;
+
+                        spreadsheet.add({ 1: updateMap});
+ 
+                        spreadsheet.send(function(err) {
+                        if(err) throw err;
+                            completion(`${i18n.get('SuccessRenameingPlayer')}`);
+                        });
                     }
                 }
-
-
-                const callback = function(column) {
-
-                    completion(`${i18n.get('CompleteEditingPlayer')}`);
-            //     if (data == null) {
-            //         var rowEntry = {};
-                  
-            //         rowEntry[`${column}`] = playerName;
-            //         spreadsheet.add({1:rowEntry});
-            //     } else {
-            //         var editedData = {};
-
-            //         for (let row of Object.keys(data)) {
-            //             let value = data[row];
-            //             for (let u of Object.values(data[row])) {
-            //                 var rowEntry = {};
-            //                 rowEntry[`${column}`] = u;
-            //                 editedData[`${row}`] = rowEntry;
-            //             }
-
-            //         }
-
-            //         spreadsheet.add(editedData);
-            //     }
-            //     spreadsheet.send(function(err) {
-            //         if(err) throw err;
-            //         if (data == null) {
-            //             completion(`${i18n.get('SuccessfulAddingPlayer')}`);
-            //         }
-                    
-            //     });
-                };
-            
-            // free slot available
-            if (emptySlot > 0) {
-                callback(emptySlot);
-                return;
-            }
-
-            const rowItems = Object.keys(firstRow);
-            
-            var last = rowItems[rowItems.length - 1];
-            if (parseInt(last) < metadata.colCount) {
-                // enough columns for inserting
-                callback(parseInt(last) + 1);
-            } else {
-                spreadsheet.metadata({
-                    colCount: metadata.colCount+1
-                    }, function(err, metadata){
-                        if(err) throw err;
-                        callback(parseInt(last) + 1);
-
-                      });
-              }
             });
         });
     });
@@ -792,7 +750,7 @@ function getPlayerByName(data, name) {
 function containsName(header, name) {
     
     for (let k of Object.keys(header)) {
-        if (header[k] === name) {
+        if (`${header[k]}` === `${name}` ) {
             return true;
         }
     }
