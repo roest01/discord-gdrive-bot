@@ -5,6 +5,7 @@
 //import
 const { RichEmbed, Client, Attachment } = require("discord.js");
 const http = require("http");
+const Tesseract = require('tesseract.js')
 const c = require("./general/constLoader");
 const i18n = require('./general/langSupport');
 const strH = require('./general/stringHelper');
@@ -177,6 +178,27 @@ function executeCommand(message) {
         };
         message.channel.startTyping();
         sheet.addTime(callback);
+        return;
+    }
+
+    if (strH.hasCmds(command,[`${PREFIX}get`])) {
+        
+        if (message.attachments != null) {
+            let values = message.attachments;
+            if (values.size > 0 ) {
+                try {
+                    let content = values.array()[0];
+                    Tesseract.recognize(content.url)
+                        //.progress(function  (p) { console.log('progress', p)  })
+                        .catch(err => console.error(err))
+                        .then(function (result) {
+                            message.channel.send(result.text);
+                        });
+                } catch(err) {
+                    message.channel.send('Get failed!');
+                }
+            }
+        }
         return;
     }
 
