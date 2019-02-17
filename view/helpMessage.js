@@ -22,7 +22,8 @@ const helpMessage = (PREFIX, author, hasRole) => {
         .setDescription(`${i18n.get('FollowingCommands')}`)
         .addField(`${PREFIX}ep`, `${i18n.get('InfoGuildMemberEPList')}`)
         .addField(`${PREFIX}find NAME`, `${i18n.get('InfoFindPlayer')}`)
-        .addField(`${PREFIX}time`, `${i18n.get('Time')}`);
+        .addField(`${PREFIX}time`, `${i18n.get('Time')}`)
+        .addField(`${PREFIX}get ATTACHMENT`, `${i18n.get('ImageParsing')}`);
         //.addField(`${PREFIX}afk [TEXT]`, `${i18n.get('InfoCheckoutPlayer')}`)
     
     if (hasRole) {
