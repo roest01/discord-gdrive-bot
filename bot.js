@@ -192,7 +192,8 @@ function executeCommand(message) {
                         //.progress(function  (p) { console.log('progress', p)  })
                         .catch(err => console.error(err))
                         .then(function (result) {
-                            message.channel.send(result.text);
+                            message.channel.send(result.text)
+                            .catch(console.error);
                         });
                 } catch(err) {
                     message.channel.send('Get failed!');
