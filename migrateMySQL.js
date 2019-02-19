@@ -120,7 +120,7 @@ function fetchAllPlayer(active, completion) {
             for (const item  of list) {
                 const currentName = Object.keys(item)[0];
                 const playerId = findPlayerIdByName(playerListFromDb, currentName);
-
+                console.log(`RAWDATA FOR ${currentName}`)
                 if (playerId != null) {
                     const timeMap = item[currentName];
                     for (const time of Object.keys(timeMap)) {
@@ -140,6 +140,7 @@ function fetchAllPlayer(active, completion) {
             }
 
             dbConnector.enableMultipleReq(true);
+            //console.log(`QUERY RAWDATA INSERT: ${fullQuery}`);
             dbConnector.executeParamQuery(fullQuery, arguments,rawDataReqCallback);
         }
         dbConnector.enableMultipleReq(true);
@@ -156,10 +157,14 @@ const completionActiveHandler = () => {
 
         // fetch guild
         const completeInsertGuild = () => {
-            console.log('Completed');
 
             const completeFetchRawData = () => {
-                console.log('Migration completed');
+                console.log('Completed RAWDATA');
+                
+                const completeFetchBackupRawData = () => {
+                    console.log('Completed Backup RAWDATA');
+                }
+                fetchAllPlayer(false, completeFetchBackupRawData);
             }
             fetchAllPlayer(true, completeFetchRawData);
         }

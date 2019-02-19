@@ -53,7 +53,7 @@ const DbHandler = (function () {
           executeQuery: function(query, callback) {
             this.connect();
             connection.query(query, function (error, results, fields) {
-              if (error) throw error;
+              //if (error) throw error;
               if (callback==null) return;
               callback(error, results,fields);
               this.disconnect;
@@ -64,7 +64,7 @@ const DbHandler = (function () {
             this.connect();
 
             connection.query(query, param, function (error, results, fields) {
-              if (error) throw error;
+              //if (error) throw error;
               if (callback==null) return;
               callback(error, results,fields);
               this.disconnect;
